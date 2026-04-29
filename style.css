@@ -611,68 +611,153 @@ p  { color:rgba(255,255,255,0.7); }
   margin-bottom: 1rem;
 }
 .source-badge.live { color: #6ee09a; border-color: rgba(46,204,113,0.3); }
+/* ── RESPONSIVE / MOBILE ── */
+@media (max-width: 768px) {
 
-<!-- ALERTS PAGE -->
-  <div id="page-alerts" class="page">
-    <div class="container">
-      <div class="hero">
-        <div>
-          <h1 data-i18n="alerts_title">Alerts & Notifications</h1>
-          <p class="subtitle" data-i18n="alerts_sub">Get notified when a service goes down</p>
-        </div>
-        <div id="alerts-status-badge" class="overall-badge" style="display:none"></div>
-      </div>
+  /* NAV */
+  .nav-inner {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px 1rem;
+    gap: 8px;
+  }
+  .nav-brand { font-size: 14px; }
+  .nav-links {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    gap: 2px;
+  }
+  .nav-link {
+    font-size: 12px;
+    padding: 5px 8px;
+    white-space: nowrap;
+  }
+  .nav-user {
+    flex-shrink: 0;
+  }
+  .user-name { display: none; }
+  .lang-toggle { flex-shrink: 0; }
 
-      <!-- ALERT PREFERENCES FORM -->
-      <div class="monitor-card" style="margin-bottom:1.5rem">
-        <h2 data-i18n="alerts_contact">Contact details</h2>
-        <p class="subtitle" style="margin-bottom:1.25rem" data-i18n="alerts_contact_sub">
-          Where should we send alerts when a service goes down?
-        </p>
-        <div class="add-service-form">
-          <div class="form-group">
-            <label data-i18n="alerts_email_label">Email address</label>
-            <input type="email" id="alert-email" class="form-input"
-              placeholder="you@email.com" data-i18n-ph="alerts_email_ph"/>
-          </div>
-          <div class="form-group">
-            <label data-i18n="alerts_phone_label">Phone number (for SMS — coming soon)</label>
-            <input type="tel" id="alert-phone" class="form-input"
-              placeholder="+237 6XX XXX XXX" data-i18n-ph="alerts_phone_ph"/>
-          </div>
-          <div class="form-group">
-            <label data-i18n="alerts_freq_label">Alert frequency</label>
-            <select id="alert-frequency" class="form-select">
-              <option value="instant" data-i18n="alerts_instant">Instant — alert me the moment a service goes down</option>
-              <option value="digest" data-i18n="alerts_digest">Digest — send me a summary every hour</option>
-            </select>
-          </div>
-          <button onclick="saveAlertPrefs()" class="primary-btn" data-i18n="alerts_save">
-            Save preferences
-          </button>
-          <div id="alert-prefs-feedback" class="feedback"></div>
-        </div>
-      </div>
+  /* CONTAINER */
+  .container { padding: 1rem; }
 
-      <!-- SERVICE ALERT TOGGLES -->
-      <div class="monitor-card" style="margin-bottom:1.5rem">
-        <h2 data-i18n="alerts_services_title">Services to monitor</h2>
-        <p class="subtitle" style="margin-bottom:1.25rem" data-i18n="alerts_services_sub">
-          Choose which services trigger an alert
-        </p>
-        <div id="alert-toggles"></div>
-      </div>
+  /* HERO */
+  .hero {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+  .hero-right {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+  h1 { font-size: 20px; }
+  h2 { font-size: 15px; }
 
-      <!-- ALERT HISTORY -->
-      <div class="monitor-card">
-        <h2 data-i18n="alerts_history_title">Alert history</h2>
-        <p class="subtitle" style="margin-bottom:1.25rem" data-i18n="alerts_history_sub">
-          Alerts sent in this session
-        </p>
-        <div id="alert-history-list">
-          <div class="no-logs" data-i18n="alerts_no_history">No alerts sent yet this session.</div>
-        </div>
-      </div>
+  /* SUMMARY GRID */
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .s-num { font-size: 20px; }
 
-    </div>
-  </div>
+  /* SERVICE CARDS */
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* MONITORING GRID */
+  .monitoring-grid {
+    grid-template-columns: 1fr;
+  }
+  .monitor-card.wide { grid-column: 1; }
+
+  /* HEATMAP */
+  .heatmap {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .heatmap-labels {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  /* FILTER BAR */
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .search-input { min-width: unset; width: 100%; }
+  .filter-btns { flex-wrap: wrap; }
+  .filter-btn { font-size: 12px; padding: 5px 10px; }
+
+  /* TX CARDS */
+  .tx-main { flex-direction: column; gap: 8px; }
+  .tx-right { text-align: left; }
+  .tx-amount { margin-bottom: 4px; }
+
+  /* MANAGE SERVICES */
+  .services-manage {
+    grid-template-columns: 1fr;
+  }
+
+  /* REFRESH BAR */
+  .refresh-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  /* CLOCK BOX */
+  .clock-box { padding: 4px 8px; }
+  .clock-time { font-size: 12px; }
+
+  /* MODALS */
+  .modal {
+    margin: 0.5rem;
+    padding: 1.25rem;
+    max-height: 95vh;
+  }
+
+  /* REPORT SECTION */
+  .report-section { padding: 1rem; }
+  .primary-btn { width: 100%; text-align: center; }
+
+  /* ALERT TOGGLES */
+  .alert-toggle-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* CHARTS */
+  .inc-chart { height: 80px; }
+  .response-chart { height: 70px; }
+  .uptime-chart-label { width: 100px; font-size: 11px; }
+
+  /* FOOTER */
+  .footer { font-size: 11px; padding: 1rem; }
+
+  /* AUTH PAGE */
+  .auth-card {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  /* LOG CARDS */
+  .log-top { flex-wrap: wrap; gap: 4px; }
+}
+
+@media (max-width: 400px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .nav-link { font-size: 11px; padding: 4px 6px; }
+  h1 { font-size: 18px; }
+  .overall-badge, .health-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+}
