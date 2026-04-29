@@ -21,7 +21,8 @@
         <a href="#" class="nav-link" onclick="showPage('tracker',this)" data-i18n="nav_tracker">Tracker</a>
         <a href="#" class="nav-link" onclick="showPage('services',this)" data-i18n="nav_services">My Services</a>
         <a href="#" class="nav-link" onclick="showPage('logs',this)" data-i18n="nav_logs">Live Logs</a>
-      </div>
+        <a href="#" class="nav-link" onclick="showPage('alerts',this)" data-i18n="nav_alerts">Alerts</a>
+    </div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="lang-toggle">
           <button class="lang-btn active" onclick="setLang('en')">EN</button>
@@ -231,6 +232,71 @@
         <button onclick="closeTimeline()" class="modal-close">✕</button>
       </div>
       <div id="timeline-content"></div>
+    </div>
+  </div>
+
+  <!-- ALERTS PAGE -->
+  <div id="page-alerts" class="page">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <h1 data-i18n="alerts_title">Alerts & Notifications</h1>
+          <p class="subtitle" data-i18n="alerts_sub">Get notified when a service goes down</p>
+        </div>
+        <div id="alerts-status-badge" class="overall-badge" style="display:none"></div>
+      </div>
+
+      <!-- ALERT PREFERENCES FORM -->
+      <div class="monitor-card" style="margin-bottom:1.5rem">
+        <h2 data-i18n="alerts_contact">Contact details</h2>
+        <p class="subtitle" style="margin-bottom:1.25rem" data-i18n="alerts_contact_sub">
+          Where should we send alerts when a service goes down?
+        </p>
+        <div class="add-service-form">
+          <div class="form-group">
+            <label data-i18n="alerts_email_label">Email address</label>
+            <input type="email" id="alert-email" class="form-input"
+              placeholder="you@email.com" data-i18n-ph="alerts_email_ph"/>
+          </div>
+          <div class="form-group">
+            <label data-i18n="alerts_phone_label">Phone number (for SMS — coming soon)</label>
+            <input type="tel" id="alert-phone" class="form-input"
+              placeholder="+237 6XX XXX XXX" data-i18n-ph="alerts_phone_ph"/>
+          </div>
+          <div class="form-group">
+            <label data-i18n="alerts_freq_label">Alert frequency</label>
+            <select id="alert-frequency" class="form-select">
+              <option value="instant" data-i18n="alerts_instant">Instant — alert me the moment a service goes down</option>
+              <option value="digest" data-i18n="alerts_digest">Digest — send me a summary every hour</option>
+            </select>
+          </div>
+          <button onclick="saveAlertPrefs()" class="primary-btn" data-i18n="alerts_save">
+            Save preferences
+          </button>
+          <div id="alert-prefs-feedback" class="feedback"></div>
+        </div>
+      </div>
+
+      <!-- SERVICE ALERT TOGGLES -->
+      <div class="monitor-card" style="margin-bottom:1.5rem">
+        <h2 data-i18n="alerts_services_title">Services to monitor</h2>
+        <p class="subtitle" style="margin-bottom:1.25rem" data-i18n="alerts_services_sub">
+          Choose which services trigger an alert
+        </p>
+        <div id="alert-toggles"></div>
+      </div>
+
+      <!-- ALERT HISTORY -->
+      <div class="monitor-card">
+        <h2 data-i18n="alerts_history_title">Alert history</h2>
+        <p class="subtitle" style="margin-bottom:1.25rem" data-i18n="alerts_history_sub">
+          Alerts sent in this session
+        </p>
+        <div id="alert-history-list">
+          <div class="no-logs" data-i18n="alerts_no_history">No alerts sent yet this session.</div>
+        </div>
+      </div>
+
     </div>
   </div>
 
