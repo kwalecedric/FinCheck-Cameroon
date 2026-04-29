@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinCheck · Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <span class="brand-dot"></span>
+        <span data-i18n="brand">FinCheck Cameroon</span>
+      </div>
+      <div class="nav-links" id="nav-links">
+        <a href="#" class="nav-link active" onclick="showPage('overview',this)" data-i18n="nav_overview">Overview</a>
+        <a href="#" class="nav-link" onclick="showPage('monitoring',this)" data-i18n="nav_monitoring">Monitoring</a>
+        <a href="#" class="nav-link" onclick="showPage('tracker',this)" data-i18n="nav_tracker">Tracker</a>
+        <a href="#" class="nav-link" onclick="showPage('services',this)" data-i18n="nav_services">My Services</a>
+        <a href="#" class="nav-link" onclick="showPage('logs',this)" data-i18n="nav_logs">Live Logs</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="lang-toggle">
+          <button class="lang-btn active" onclick="setLang('en')">EN</button>
+          <button class="lang-btn" onclick="setLang('fr')">FR</button>
+        </div>
+        <div class="nav-user" id="nav-user">
+          <span class="user-name" id="user-display"></span>
+          <button onclick="signOut()" class="signout-btn" data-i18n="signout">Sign out</button>
+        </div>
+      </div>
+    </div>
+    </nav>
+
+
+  <!-- OVERVIEW PAGE -->
+  <div id="page-overview" class="page active">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <p class="subtitle" id="greeting"></p>
+          <h1>Platform Overview</h1>
+        </div>
+        <div class="hero-right">
+          <div id="overall-badge" class="overall-badge"></div>
+          <div class="clock-box">
+            <span class="clock-label">Live</span>
+            <span id="live-clock" class="clock-time"></span>
+          </div>
+        </div>
+      </div>
+      <div class="refresh-bar">
+         <div class="live-indicator" id="live-indicator">
+        <div class="live-indicator-dot"></div>
+        <span data-i18n="live_data">Fetching live uptime data...</span>
+      </div>
+        <span>Auto-refreshing in <strong id="countdown">60</strong>s</span>
+        <button onclick="manualRefresh()" class="refresh-btn">Refresh now</button>
+      </div>
+      <div class="summary-grid" id="summary-grid"></div>
+      <div class="search-wrap">
+        <input type="text" id="search-input" class="search-input"
+          placeholder="Search services..." oninput="renderServices()"/>
+      </div>
+      <div class="services-grid" id="services-grid"></div>
+     <div class="report-section">
+        <h2 data-i18n="report_title">Report an issue</h2>
+        <p class="subtitle" data-i18n="report_sub" style="margin-bottom:1rem">Experiencing a problem? Let the community know.</p>
+        <div class="report-form">
+          <select id="report-service" class="form-select">
+            <option value="" data-i18n="select_service">Select a service...</option>
+          </select>
+          <select id="report-type" class="form-select">
+            <option value="" data-i18n="select_issue">Type of issue...</option>
+            <option data-i18n="issue_login">Cannot log in</option>
+            <option data-i18n="issue_tx">Transaction failed</option>
+            <option data-i18n="issue_funds">Funds debited but not received</option>
+            <option data-i18n="issue_otp">OTP not received</option>
+            <option data-i18n="issue_app">App not loading</option>
+            <option data-i18n="issue_slow">Slow transactions</option>
+            <option data-i18n="issue_other">Other</option>
+          </select>
+          <textarea id="report-desc" class="form-textarea" data-i18n="desc_placeholder"
+            placeholder="Describe the issue briefly (optional)..." rows="2"></textarea>
+          <button onclick="submitReport()" class="primary-btn" data-i18n="submit_report">Submit report</button>
+        </div>
+        <div id="report-feedback" class="feedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONITORING PAGE -->
+  <div id="page-monitoring" class="page">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <h1>Monitoring Dashboard</h1>
+          <p class="subtitle">Key metrics across all Cameroonian fintech services</p>
+        </div>
+      </div>
+      <div class="monitoring-grid">
+        <div class="monitor-card wide">
+          <h2>Uptime % — Last 30 days</h2>
+          <div id="chart-uptime"></div>
+        </div>
+        <div class="monitor-card wide">
+          <h2>Incident frequency</h2>
+          <div id="chart-incidents"></div>
+        </div>
+        <div class="monitor-card">
+          <h2>Peak downtime hours</h2>
+          <p class="subtitle" style="margin-bottom:1rem">Hours when outages occur most</p>
+          <div id="chart-heatmap"></div>
+        </div>
+        <div class="monitor-card">
+          <h2>Response time trends</h2>
+          <p class="subtitle" style="margin-bottom:1rem">Simulated avg response (ms)</p>
+          <div id="chart-response"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACKER PAGE -->
+  <div id="page-tracker" class="page">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <h1>Transaction Tracker</h1>
+          <p class="subtitle">Monitor and manage your transactions</p>
+        </div>
+        <div class="hero-right">
+          <div class="health-badge" id="health-badge"></div>
+        </div>
+      </div>
+      <div class="summary-grid" id="tx-summary"></div>
+      <div class="health-section" id="health-section"></div>
+      <div class="chart-section">
+        <h2 style="margin-bottom:1rem">Spending breakdown</h2>
+        <div id="spending-chart"></div>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="tx-search" class="search-input"
+          placeholder="Search transactions..." oninput="renderTransactions()"/>
+        <div class="filter-btns">
+          <button class="filter-btn active" onclick="filterTx('all',this)">All</button>
+          <button class="filter-btn" onclick="filterTx('success',this)">Success</button>
+          <button class="filter-btn" onclick="filterTx('pending',this)">Pending</button>
+          <button class="filter-btn" onclick="filterTx('failed',this)">Failed</button>
+        </div>
+      </div>
+      <div id="tx-list"></div>
+    </div>
+  </div>
+
+  <!-- MY SERVICES PAGE -->
+  <div id="page-services" class="page">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <h1>My Services</h1>
+          <p class="subtitle">Personalise which fintechs you monitor</p>
+        </div>
+      </div>
+      <div class="services-manage" id="services-manage"></div>
+      <div class="add-service-section">
+        <h2>Add a service</h2>
+        <p class="subtitle" style="margin-bottom:1rem">Don't see your fintech? Add it manually.</p>
+        <div class="add-service-form">
+          <input type="text" id="new-service-name" class="form-input" placeholder="Service name (e.g. Ecobank Mobile)"/>
+          <input type="text" id="new-service-type" class="form-input" placeholder="Type (e.g. Mobile Banking)"/>
+          <button onclick="addCustomService()" class="primary-btn">Add service</button>
+        </div>
+        <div id="add-feedback" class="feedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE LOGS PAGE -->
+  <div id="page-logs" class="page">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <h1>Live Logs</h1>
+          <p class="subtitle">Real-time community reports</p>
+        </div>
+        <div class="log-live-badge">
+          <span class="log-dot"></span> LIVE
+        </div>
+      </div>
+      <div id="logs-count" class="logs-count"></div>
+      <div id="live-logs-list"></div>
+    </div>
+  </div>
+
+  <!-- DISPUTE MODAL -->
+  <div id="dispute-modal" class="modal-overlay" onclick="closeDispute()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Dispute Transaction</h2>
+        <button onclick="closeDispute()" class="modal-close">✕</button>
+      </div>
+      <div id="modal-tx-info" class="modal-info"></div>
+      <p class="modal-label">Reason for dispute</p>
+      <select id="dispute-reason" class="form-select">
+        <option value="">Select reason...</option>
+        <option>Funds debited but not received</option>
+        <option>Wrong amount charged</option>
+        <option>Transaction not initiated by me</option>
+        <option>Service not delivered</option>
+        <option>Other</option>
+      </select>
+      <p class="modal-label" style="margin-top:12px">Additional details</p>
+      <textarea id="dispute-desc" class="form-textarea" rows="3"
+        placeholder="Describe what happened..."></textarea>
+      <button onclick="submitDispute()" class="primary-btn" style="margin-top:12px;width:100%">
+        Submit Dispute
+      </button>
+      <div id="dispute-feedback" class="feedback"></div>
+    </div>
+  </div>
+
+  <!-- TIMELINE MODAL -->
+  <div id="timeline-modal" class="modal-overlay" onclick="closeTimeline()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Transaction Timeline</h2>
+        <button onclick="closeTimeline()" class="modal-close">✕</button>
+      </div>
+      <div id="timeline-content"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    FinCheck Cameroon · Built by Ngong Kwale Cedric ·
+    <a href="https://github.com/kwalecedric" target="_blank">GitHub</a>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
