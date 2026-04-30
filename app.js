@@ -73,11 +73,10 @@ let alertHistory     = [];
 
 async function fetchUptimeData() {
   try {
-    const res = await fetch("https://api.uptimerobot.com/v2/getMonitors", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `api_key=${UPTIME_API_KEY}&format=json&logs=0&response_times=1`
-    });
+    const res = await fetch("https://fincheck-sms-server.onrender.com/uptime", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" }
+});
     const data = await res.json();
     if (data.stat === "ok" && data.monitors?.length) {
       await applyUptimeData(data.monitors);
