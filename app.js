@@ -42,9 +42,26 @@ async function sendEmailAlert(toEmail, toName, serviceName, status, details) {
         }
       })
     });
+    
     return res.status === 200;
   } catch(e) {
     console.error("EmailJS error:", e);
+    return false;
+  }
+}
+
+// ── SEND SMS ALERT ────────────────────────────────────
+async function sendSMSAlert(phone, userName, serviceName, status, details) {
+  try {
+    const res = await fetch("https://fincheck-sms-server.onrender.com/send-sms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, userName, serviceName, status, details })
+    });
+    const data = await res.json();
+    return data.success;
+  } catch(e) {
+    console.error("SMS error:", e);
     return false;
   }
 }
@@ -105,20 +122,41 @@ async function applyUptimeData(monitors) {
           : newStatus === "degraded" ? "DEGRADED — Performance issues detected"
           : "RECOVERED — Service is back online";
 
-        const sent = await sendEmailAlert(
-          alertPrefs.email,
-          alertPrefs.name || "FinCheck User",
-          match.name,
-          statusText,
-          match.note
-        );
+      // Fire email alert
+const emailSent = await sendEmailAlert(
+  alertPrefs.email,
+  alertPrefs.name || "FinCheck User",
+  match.name,
+  statusText,
+  match.note
+);
+
+// Fire SMS alert if phone number saved
+let smsSent = false;
+if (alertPrefs.phone) {
+  smsSent = await sendSMSAlert(
+    alertPrefs.phone,
+    alertPrefs.name || "FinCheck User",
+    match.name,
+    statusText,
+    match.note
+  );
+}
+
+// Build sent confirmation message
+const sentChannels = [];
+if (emailSent) sentChannels.push("Email ✓");
+if (smsSent)   sentChannels.push("SMS ✓");
+const sentMsg = sentChannels.length
+  ? sentChannels.join(" · ") + " sent"
+  : "Alert failed to send";
 
         // Log to alert history
         const historyEntry = {
           service: match.name,
           status: statusText,
           time: new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}),
-          sent: sent ? "Email sent ✓" : "Email failed ✗",
+         sent: sentMsg,
           type: newStatus
         };
         alertHistory.unshift(historyEntry);
