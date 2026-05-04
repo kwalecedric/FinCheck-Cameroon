@@ -1,28 +1,4 @@
-Let's build all of them systematically. We'll go in order of impact:
-Build order:
-
-Public status page — no login required, shareable link
-WhatsApp alerts — via Africa's Talking WhatsApp API
-SLA PDF reports — downloadable monthly report
-User upvoting — community report credibility
-B2B fintech dashboard — separate portal for companies
-Anomaly detection — spike detection on complaints
-
-That's a full product sprint. Let's start with the public status page since it gives you immediate real users.
-
-Public Status Page Plan:
-We'll create a new file called status.html — a completely public page, no login needed, that shows:
-
-Overall system status at the top
-All service cards with live UptimeRobot data
-Recent community reports
-A link to sign up for alerts
-Auto-refreshes every 60 seconds
-Shareable URL: kwalecedric.github.io/FinCheck-Cameroon/status.html
-
-It will be the page you share in WhatsApp groups when people ask "is Sara Money down?"
-Create a new file called status.html in your FinCheck_Cameroon folder and paste this:
-html<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -36,7 +12,7 @@ html<!DOCTYPE html>
   <style>
     .public-hero {
       text-align: center;
-      padding: 3rem 1.5rem 2rem;
+      padding: 1.5rem 1.5rem 1rem;
     }
     .public-brand {
       display: inline-flex;
@@ -226,8 +202,7 @@ html<!DOCTYPE html>
     }
   </style>
 </head>
-<body>
-
+<body class="public-page">
   <nav class="public-nav">
     <div class="public-nav-inner">
       <a href="index.html" class="public-nav-brand">
