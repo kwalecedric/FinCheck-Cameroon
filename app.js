@@ -1069,7 +1069,6 @@ window.downloadPDF = async function() {
   fb.className = "feedback";
 
   try {
-    // Load jsPDF
     const script = document.createElement("script");
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
     document.head.appendChild(script);
@@ -1079,86 +1078,373 @@ window.downloadPDF = async function() {
     const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
-    let y = 0;
 
-    // ── HEADER ──
+    // ── HELPER FUNCTIONS ──
+    function checkPage(needed) {
+      if (y + needed > pageH - 20) { addFooter(); doc.addPage(); addHeader(); y = 52; }
+    }
+
+    function addHeader() {
+      doc.setFillColor(10, 31, 20);
+      doc.rect(0, 0, pageW, 16, "F");
+      doc.setTextColor(46, 204, 113);
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      doc.text("FINCHECK CAMEROON", 15, 10);
+      doc.setTextColor(150, 200, 150);
+      doc.setFont("helvetica", "normal");
+      doc.text(`SLA Report · ${reportData.periodText} · ${reportData.org}`, pageW/2, 10, {align:"center"});
+      doc.text(`Generated ${new Date().toLocaleDateString("en-GB")}`, pageW-15, 10, {align:"right"});
+    }
+
+    function addFooter() {
+      doc.setFillColor(10, 31, 20);
+      doc.rect(0, pageH-12, pageW, 12, "F");
+      doc.setTextColor(100, 180, 130);
+      doc.setFontSize(7);
+      doc.setFont("helvetica", "normal");
+      doc.text("FinCheck Cameroon · Built by Ngong Kwale Cedric · kwalecedric.github.io/FinCheck-Cameroon", 15, pageH-4);
+      const pageNum = doc.internal.getCurrentPageInfo().pageNumber;
+      doc.text(`Page ${pageNum}`, pageW-15, pageH-4, {align:"right"});
+    }
+
+    function sectionTitle(text) {
+      checkPage(16);
+      doc.setFillColor(10, 31, 20);
+      doc.rect(15, y-4, pageW-30, 12, "F");
+      doc.setTextColor(46, 204, 113);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text(text.toUpperCase(), 20, y+4);
+      y += 14;
+    }
+
+    function metricRow(label, value, color) {
+      checkPage(8);
+      doc.setTextColor(80, 110, 90);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text(label, 22, y);
+      doc.setTextColor(...(color || [20, 60, 30]));
+      doc.setFont("helvetica", "bold");
+      doc.text(String(value), pageW-22, y, {align:"right"});
+      doc.setDrawColor(220, 240, 220);
+      doc.line(22, y+2, pageW-22, y+2);
+      y += 8;
+    }
+
+    function riskBadge(rating) {
+      const configs = {
+        "Low":      { bg:[46,204,113],  text:[255,255,255] },
+        "Medium":   { bg:[240,160,32],  text:[255,255,255] },
+        "High":     { bg:[231,76,60],   text:[255,255,255] },
+        "Critical": { bg:[120,0,0],     text:[255,200,200] }
+      };
+      const c = configs[rating] || configs["Low"];
+      doc.setFillColor(...c.bg);
+      doc.roundedRect(pageW-50, y-6, 30, 8, 2, 2, "F");
+      doc.setTextColor(...c.text);
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      doc.text(rating, pageW-35, y, {align:"center"});
+    }
+
+    function getRiskRating(uptimePct, incidents) {
+      const pct = parseFloat(uptimePct);
+      if (pct >= 99.5 && incidents <= 1) return "Low";
+      if (pct >= 97   && incidents <= 3) return "Medium";
+      if (pct >= 93   && incidents <= 6) return "High";
+      return "Critical";
+    }
+
+    function progressBar(x, barY, width, height, pct, color) {
+      doc.setFillColor(220, 240, 220);
+      doc.roundedRect(x, barY, width, height, 1, 1, "F");
+      doc.setFillColor(...color);
+      doc.roundedRect(x, barY, width*(Math.min(pct,100)/100), height, 1, 1, "F");
+    }
+
+    // ── PAGE 1 — COVER ──────────────────────────────────
     doc.setFillColor(10, 31, 20);
-    doc.rect(0, 0, pageW, 45, "F");
+    doc.rect(0, 0, pageW, pageH, "F");
+
+    // Green accent bar
+    doc.setFillColor(46, 204, 113);
+    doc.rect(0, 0, 8, pageH, "F");
+
+    // Logo area
     doc.setTextColor(46, 204, 113);
+    doc.setFontSize(28);
+    doc.setFont("helvetica", "bold");
+    doc.text("FinCheck", 25, 50);
+    doc.setTextColor(100, 200, 150);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.text("Cameroon", 25, 62);
+
+    // Title
+    doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
-    doc.text("FinCheck Cameroon", 15, 18);
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    doc.text("Service Level Agreement Report", 15, 27);
+    doc.text("Service Level Agreement", 25, 100);
+    doc.text("Report", 25, 114);
+
+    // Divider
+    doc.setDrawColor(46, 204, 113);
+    doc.setLineWidth(0.5);
+    doc.line(25, 122, pageW-25, 122);
+
+    // Details
     doc.setTextColor(150, 200, 150);
-    doc.setFontSize(10);
-    doc.text(`${reportData.periodText} · Prepared for: ${reportData.org}`, 15, 35);
-    doc.text(`Generated: ${new Date().toLocaleDateString("en-GB")}`, 15, 42);
-    y = 58;
-
-    // ── SUMMARY BOX ──
-    doc.setFillColor(240, 248, 240);
-    doc.roundedRect(15, y-6, pageW-30, 28, 3, 3, "F");
-    doc.setTextColor(30, 80, 50);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("EXECUTIVE SUMMARY", 22, y+2);
+    doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text(`Services monitored: ${reportData.metrics.length}`, 22, y+10);
-    doc.text(`Average uptime: ${reportData.avgUptime}%`, 22, y+17);
-    doc.text(`Total incidents: ${reportData.totalIncidents}`, 100, y+10);
-    doc.text(`Report period: ${reportData.periodText}`, 100, y+17);
-    y += 36;
+    doc.text(`Prepared for: ${reportData.org}`, 25, 135);
+    doc.text(`Report period: ${reportData.periodText}`, 25, 145);
+    doc.text(`Generated: ${new Date().toLocaleDateString("en-GB", {day:"numeric",month:"long",year:"numeric"})}`, 25, 155);
+    doc.text(`Services covered: ${reportData.metrics.length}`, 25, 165);
 
-    // ── SERVICE DETAILS ──
-    doc.setTextColor(10, 31, 20);
-    doc.setFontSize(13);
+    // Overall health
+    const overallColor = parseFloat(reportData.avgUptime) >= 99
+      ? [46,204,113] : parseFloat(reportData.avgUptime) >= 95
+      ? [240,160,32] : [231,76,60];
+    doc.setFillColor(...overallColor.map(c => Math.round(c*0.2)));
+    doc.roundedRect(25, 185, pageW-50, 35, 4, 4, "F");
+    doc.setDrawColor(...overallColor);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(25, 185, pageW-50, 35, 4, 4, "S");
+    doc.setTextColor(...overallColor);
+    doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
-    doc.text("Service Performance", 15, y);
-    y += 8;
+    doc.text("OVERALL PLATFORM UPTIME", 35, 198);
+    doc.setFontSize(24);
+    doc.text(`${reportData.avgUptime}%`, 35, 212);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(150, 200, 150);
+    doc.text(`${reportData.totalIncidents} total incidents recorded`, pageW-35, 205, {align:"right"});
+    doc.text(`${reportData.metrics.length} services monitored`, pageW-35, 215, {align:"right"});
+
+    // Confidential footer
+    doc.setTextColor(60, 100, 80);
+    doc.setFontSize(8);
+    doc.text("CONFIDENTIAL — For internal use only", pageW/2, pageH-20, {align:"center"});
+    doc.text("FinCheck Cameroon · Built by Ngong Kwale Cedric", pageW/2, pageH-13, {align:"center"});
+
+    // ── PAGE 2 — EXECUTIVE SUMMARY ──────────────────────
+    doc.addPage();
+    addHeader();
+    let y = 28;
+
+    sectionTitle("Executive Summary");
+
+    // Auto-generated summary paragraph
+    const bestService  = reportData.metrics.reduce((a,b) => parseFloat(a.uptimePct)>parseFloat(b.uptimePct)?a:b);
+    const worstService = reportData.metrics.reduce((a,b) => parseFloat(a.uptimePct)<parseFloat(b.uptimePct)?a:b);
+    const criticalCount = reportData.metrics.filter(m=>getRiskRating(m.uptimePct,m.incidents)==="Critical").length;
+    const highCount     = reportData.metrics.filter(m=>getRiskRating(m.uptimePct,m.incidents)==="High").length;
+
+    const summaryText = [
+      `This report covers the performance of ${reportData.metrics.length} fintech services monitored`,
+      `by FinCheck Cameroon during ${reportData.periodText}. The overall platform uptime`,
+      `averaged ${reportData.avgUptime}%, with a total of ${reportData.totalIncidents} incidents recorded`,
+      `across all monitored services during this period.`,
+      ``,
+      `${bestService.name} achieved the highest uptime at ${bestService.uptimePct}%, demonstrating`,
+      `strong reliability during the reporting period. ${worstService.name} recorded the lowest`,
+      `uptime at ${worstService.uptimePct}% and requires immediate attention.`,
+      ``,
+      `Risk assessment identified ${criticalCount} service${criticalCount!==1?"s":""} at Critical risk level`,
+      `and ${highCount} service${highCount!==1?"s":""} at High risk level, requiring priority intervention`,
+      `from the respective service providers.`
+    ];
+
+    doc.setFillColor(245, 252, 245);
+    doc.roundedRect(15, y-2, pageW-30, summaryText.length*5.5+8, 3, 3, "F");
+    doc.setTextColor(20, 60, 30);
+    doc.setFontSize(9.5);
+    doc.setFont("helvetica", "normal");
+    summaryText.forEach(line => {
+      doc.text(line, 20, y+4);
+      y += 5.5;
+    });
+    y += 10;
+
+    // Key metrics grid
+    sectionTitle("Key Performance Indicators");
+
+    const kpis = [
+      ["Average Platform Uptime",    `${reportData.avgUptime}%`,         [20,60,30]],
+      ["Total Incidents Recorded",   `${reportData.totalIncidents}`,      reportData.totalIncidents>5?[180,60,30]:[20,60,30]],
+      ["Services at Critical Risk",  `${criticalCount}`,                  criticalCount>0?[180,60,30]:[20,60,30]],
+      ["Services at High Risk",      `${highCount}`,                      highCount>0?[160,100,20]:[20,60,30]],
+      ["Best Performing Service",    `${bestService.name} (${bestService.uptimePct}%)`, [20,60,30]],
+      ["Worst Performing Service",   `${worstService.name} (${worstService.uptimePct}%)`, [180,60,30]],
+      ["Report Period",              reportData.periodText,               [20,60,30]],
+      ["Services Monitored",         `${reportData.metrics.length}`,      [20,60,30]],
+    ];
+
+    kpis.forEach(([label, value, color]) => metricRow(label, value, color));
+    y += 4;
+
+    // ── PAGE 3+ — SERVICE DETAILS ────────────────────────
+    sectionTitle("Service Performance Details");
 
     reportData.metrics.forEach(m => {
-      if (y > pageH - 40) { doc.addPage(); y = 20; }
+      checkPage(70);
+      const pct   = parseFloat(m.uptimePct);
+      const color = pct>=99?[46,204,113]:pct>=95?[240,160,32]:[231,76,60];
+      const risk  = getRiskRating(m.uptimePct, m.incidents);
 
-      // Service name row
+      // Service header
       doc.setFillColor(245, 252, 245);
-      doc.roundedRect(15, y-2, pageW-30, 26, 2, 2, "F");
+      doc.roundedRect(15, y-2, pageW-30, 14, 2, 2, "F");
       doc.setTextColor(20, 60, 30);
       doc.setFontSize(11);
       doc.setFont("helvetica", "bold");
-      doc.text(m.name, 20, y+6);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
+      doc.text(m.name, 20, y+7);
       doc.setTextColor(80, 120, 90);
-      doc.text(m.type, 20, y+12);
-
-      // Uptime percentage
-      const pct = parseFloat(m.uptimePct);
-      const color = pct>=99 ? [46,204,113] : pct>=95 ? [240,160,32] : [231,76,60];
-      doc.setTextColor(...color);
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.text(`${m.uptimePct}%`, pageW-40, y+8);
-
-      // Progress bar
-      const barX = 20, barY = y+16, barW = pageW-60, barH = 3;
-      doc.setFillColor(220, 240, 220);
-      doc.roundedRect(barX, barY, barW, barH, 1, 1, "F");
-      doc.setFillColor(...color);
-      doc.roundedRect(barX, barY, barW*(pct/100), barH, 1, 1, "F");
-
-      // Incidents
-      doc.setTextColor(100, 140, 110);
       doc.setFontSize(8);
       doc.setFont("helvetica", "normal");
-      doc.text(`${m.incidents} incidents · ${m.downDays} days down · ${m.upDays} days up`, 20, y+23);
+      doc.text(m.type, 20, y+12);
+      riskBadge(risk);
+      y += 18;
 
-      y += 34;
+      // Uptime bar
+      doc.setTextColor(80,110,90);
+      doc.setFontSize(8);
+      doc.text("Uptime", 22, y);
+      doc.setTextColor(...color);
+      doc.setFont("helvetica","bold");
+      doc.text(`${m.uptimePct}%`, pageW-22, y, {align:"right"});
+      y += 3;
+      progressBar(22, y, pageW-44, 4, pct, color);
+      y += 10;
+
+      // Metrics
+      const metricsGrid = [
+        ["Days operational",  `${m.upDays} / ${m.uptime.length} days`],
+        ["Partial outages",   `${m.partialDays} day${m.partialDays!==1?"s":""}`],
+        ["Full outages",      `${m.downDays} day${m.downDays!==1?"s":""}`],
+        ["Total incidents",   `${m.incidents}`],
+      ];
+
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(8.5);
+      metricsGrid.forEach(([label, val], i) => {
+        const col = i < 2 ? 22 : pageW/2+5;
+        const row = i < 2 ? i : i-2;
+        doc.setTextColor(100,140,110);
+        doc.text(label, col, y + row*7);
+        doc.setTextColor(20,60,30);
+        doc.setFont("helvetica","bold");
+        doc.text(val, col+55, y + row*7);
+        doc.setFont("helvetica","normal");
+      });
+      y += 18;
+
+      // Uptime history bar
+      doc.setTextColor(80,110,90);
+      doc.setFontSize(7.5);
+      doc.text("30-day uptime history", 22, y);
+      y += 3;
+      const blockW = (pageW-44)/30;
+      m.uptime.forEach((d, i) => {
+        const blockColor = d==="up"?[46,204,113]:d==="partial"?[240,160,32]:[231,76,60];
+        doc.setFillColor(...blockColor);
+        doc.rect(22 + i*blockW, y, blockW-0.5, 5, "F");
+      });
+      doc.setTextColor(120,160,130);
+      doc.setFontSize(7);
+      doc.text("30 days ago", 22, y+9);
+      doc.text("Today", pageW-22, y+9, {align:"right"});
+      y += 16;
+
+      // Recommendation
+      let recommendation = "";
+      if (risk === "Critical") recommendation = `URGENT: ${m.name} requires immediate intervention. Escalate to provider.`;
+      else if (risk === "High") recommendation = `${m.name} is underperforming. Schedule a review with the service provider.`;
+      else if (risk === "Medium") recommendation = `${m.name} is acceptable but monitor closely for deterioration.`;
+      else recommendation = `${m.name} is performing excellently. Maintain current standards.`;
+
+      doc.setFillColor(risk==="Critical"?[255,240,240]:risk==="High"?[255,248,235]:risk==="Medium"?[255,252,230]:[235,252,240]);
+      doc.roundedRect(22, y-3, pageW-44, 10, 2, 2, "F");
+      const recColor = risk==="Critical"?[150,30,30]:risk==="High"?[140,80,10]:risk==="Medium"?[120,100,10]:[30,100,50];
+      doc.setTextColor(...recColor);
+      doc.setFontSize(8);
+      doc.setFont("helvetica","bold");
+      doc.text("Recommendation: ", 26, y+3);
+      doc.setFont("helvetica","normal");
+      doc.text(recommendation, 26+doc.getTextWidth("Recommendation: "), y+3);
+      y += 16;
+
+      // Divider between services
+      doc.setDrawColor(220,240,220);
+      doc.setLineWidth(0.3);
+      doc.line(15, y-4, pageW-15, y-4);
     });
 
+    // ── FINAL PAGE — INCIDENT SUMMARY & DISCLAIMER ───────
+    checkPage(80);
+    sectionTitle("Incident Summary by Service");
+
+    reportData.metrics.forEach(m => {
+      checkPage(12);
+      const risk = getRiskRating(m.uptimePct, m.incidents);
+      const barColor = risk==="Critical"?[231,76,60]:risk==="High"?[240,160,32]:risk==="Medium"?[200,180,20]:[46,204,113];
+      doc.setTextColor(20,60,30);
+      doc.setFontSize(9);
+      doc.setFont("helvetica","bold");
+      doc.text(m.name, 22, y);
+      doc.setFont("helvetica","normal");
+      doc.setTextColor(100,140,110);
+      doc.text(`${m.incidents} incidents`, pageW-22, y, {align:"right"});
+      y += 3;
+      const maxInc = Math.max(...reportData.metrics.map(x=>x.incidents), 1);
+      progressBar(22, y, pageW-44, 5, (m.incidents/maxInc)*100, barColor);
+      y += 10;
+    });
+
+    y += 6;
+    checkPage(40);
+    sectionTitle("Disclaimer & Notes");
+
+    const disclaimer = [
+      "This report was generated automatically by FinCheck Cameroon based on publicly available",
+      "uptime monitoring data and community-submitted reports. Uptime percentages are calculated",
+      "from 30-day monitoring windows. This report is intended for informational purposes and",
+      "internal use only. FinCheck Cameroon is an independent monitoring platform and is not",
+      "affiliated with any of the monitored service providers.",
+      "",
+      "For partnership enquiries, API access, or white-label reporting solutions:",
+      "Contact: github.com/kwalecedric"
+    ];
+
+    doc.setFillColor(245,252,245);
+    doc.roundedRect(15, y-2, pageW-30, disclaimer.length*5.5+8, 3, 3, "F");
+    doc.setTextColor(80,120,90);
+    doc.setFontSize(8.5);
+    doc.setFont("helvetica","normal");
+    disclaimer.forEach(line => {
+      doc.text(line, 20, y+4);
+      y += 5.5;
+    });
+
+    addFooter();
+
+    // ── SAVE ──
+    const filename = `FinCheck_SLA_${reportData.periodText.replace(/\s+/g,"_")}_${reportData.org.replace(/\s+/g,"_")}.pdf`;
+    doc.save(filename);
+
+    fb.textContent = "✓ PDF downloaded successfully!";
+    fb.className = "feedback success";
+    setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; }, 3000);
+
+  } catch(e) {
+    console.error(e);
+    fb.textContent = "Failed to generate PDF. Please try again.";
+    fb.className = "feedback error";
+  }
+};
     // ── FOOTER ──
     const totalPages = doc.internal.getNumberOfPages();
     for (let i=1; i<=totalPages; i++) {
