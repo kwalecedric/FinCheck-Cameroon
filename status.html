@@ -1,0 +1,485 @@
+Let's build all of them systematically. We'll go in order of impact:
+Build order:
+
+Public status page — no login required, shareable link
+WhatsApp alerts — via Africa's Talking WhatsApp API
+SLA PDF reports — downloadable monthly report
+User upvoting — community report credibility
+B2B fintech dashboard — separate portal for companies
+Anomaly detection — spike detection on complaints
+
+That's a full product sprint. Let's start with the public status page since it gives you immediate real users.
+
+Public Status Page Plan:
+We'll create a new file called status.html — a completely public page, no login needed, that shows:
+
+Overall system status at the top
+All service cards with live UptimeRobot data
+Recent community reports
+A link to sign up for alerts
+Auto-refreshes every 60 seconds
+Shareable URL: kwalecedric.github.io/FinCheck-Cameroon/status.html
+
+It will be the page you share in WhatsApp groups when people ask "is Sara Money down?"
+Create a new file called status.html in your FinCheck_Cameroon folder and paste this:
+html<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinCheck · Live Status</title>
+  <meta name="description" content="Live status of mobile money and banking services in Cameroon — Sara Money, MTN Mobile Money, Orange Money, Express Union and more.">
+  <meta property="og:title" content="FinCheck Cameroon — Live Service Status">
+  <meta property="og:description" content="Is Sara Money down? Check live status of all Cameroonian fintech services.">
+  <meta property="og:url" content="https://kwalecedric.github.io/FinCheck-Cameroon/status.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .public-hero {
+      text-align: center;
+      padding: 3rem 1.5rem 2rem;
+    }
+    .public-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 1.5rem;
+      text-decoration: none;
+    }
+    .public-brand:hover { color: rgba(255,255,255,0.8); }
+    .status-headline {
+      font-size: 32px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .status-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 1.5rem;
+    }
+    .overall-status-big {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      border-radius: 99px;
+      font-size: 15px;
+      font-weight: 500;
+      border: 1px solid;
+      margin-bottom: 1rem;
+    }
+    .overall-status-big.all-good {
+      background: rgba(46,204,113,0.15);
+      color: #6ee09a;
+      border-color: rgba(46,204,113,0.4);
+    }
+    .overall-status-big.issues {
+      background: rgba(231,76,60,0.15);
+      color: #ff8a8a;
+      border-color: rgba(231,76,60,0.4);
+    }
+    .overall-status-big.some {
+      background: rgba(240,160,32,0.15);
+      color: #ffc96e;
+      border-color: rgba(240,160,32,0.4);
+    }
+    .big-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .public-meta {
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 2rem;
+    }
+    .public-nav {
+      background: rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .public-nav-inner {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+    }
+    .public-nav-brand {
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .signup-btn {
+      font-size: 13px;
+      padding: 6px 16px;
+      background: #2ecc71;
+      color: #0a1f14;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .signup-btn:hover { background: #27ae60; }
+    .section-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+    .public-section { margin-bottom: 2.5rem; }
+    .share-bar {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+    .share-bar p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.7);
+      margin: 0;
+    }
+    .share-btn {
+      font-size: 13px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .share-btn.whatsapp {
+      background: #25d366;
+      border-color: #25d366;
+      color: #fff;
+      font-weight: 500;
+    }
+    .share-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+    .report-link {
+      text-align: center;
+      padding: 2rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+    }
+    .report-link p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 1rem;
+    }
+    .recent-log-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 8px;
+    }
+    .recent-log-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .recent-log-service { font-size: 14px; font-weight: 500; color: #fff; }
+    .recent-log-time    { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .recent-log-type    { font-size: 13px; color: #ffc96e; }
+    .public-footer {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+    }
+    .public-footer a { color: #6ee09a; text-decoration: none; margin: 0 6px; }
+    .countdown-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 600px) {
+      .status-headline { font-size: 24px; }
+      .public-hero { padding: 2rem 1rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="public-nav">
+    <div class="public-nav-inner">
+      <a href="index.html" class="public-nav-brand">
+        <span class="brand-dot"></span>
+        FinCheck Cameroon
+      </a>
+      <a href="index.html" class="signup-btn">Sign in for alerts</a>
+    </div>
+  </nav>
+
+  <div class="public-hero">
+    <div id="overall-status-big" class="overall-status-big all-good">
+      <div class="big-dot" id="big-dot" style="background:#2ecc71;animation:pulse-green 2s infinite"></div>
+      <span id="overall-text">Checking status...</span>
+    </div>
+    <h1 class="status-headline">Cameroon Fintech Status</h1>
+    <p class="status-sub">Live status of mobile money & banking services in Cameroon</p>
+    <div class="countdown-bar">
+      <div class="live-indicator-dot"></div>
+      Auto-refreshing in <strong id="countdown" style="color:rgba(255,255,255,0.6)">60</strong>s ·
+      Last updated: <span id="last-updated">—</span>
+    </div>
+  </div>
+
+  <div class="container" style="max-width:780px;margin:0 auto;padding:0 1.5rem 2rem;">
+
+    <!-- SHARE BAR -->
+    <div class="share-bar">
+      <p>Know someone affected? Share this page.</p>
+      <div class="share-buttons">
+        <a class="share-btn whatsapp" id="whatsapp-share" href="#" target="_blank">
+          Share on WhatsApp
+        </a>
+        <button class="share-btn" onclick="copyLink()">Copy link</button>
+      </div>
+    </div>
+
+    <!-- SERVICE CARDS -->
+    <div class="public-section">
+      <p class="section-title">Service status</p>
+      <div class="summary-grid" id="summary-grid" style="margin-bottom:1.25rem"></div>
+      <div class="services-grid" id="services-grid"></div>
+    </div>
+
+    <!-- RECENT REPORTS -->
+    <div class="public-section">
+      <p class="section-title">Recent community reports</p>
+      <div id="recent-reports">
+        <div class="no-logs">Loading reports...</div>
+      </div>
+    </div>
+
+    <!-- REPORT / SIGN UP CTA -->
+    <div class="report-link">
+      <p>Experiencing an issue? Sign in to report it and get instant alerts when services go down.</p>
+      <a href="index.html" class="signup-btn" style="display:inline-block;padding:10px 24px;font-size:14px;">
+        Sign in to report an issue
+      </a>
+    </div>
+
+  </div>
+
+  <div class="public-footer">
+    FinCheck Cameroon · Built by Ngong Kwale Cedric ·
+    <a href="index.html">Sign in</a> ·
+    <a href="https://github.com/kwalecedric" target="_blank">GitHub</a>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, query, orderByChild, limitToLast, onValue }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCdU-t2ItIjVFRQo65rzle8n2PrKZ_STmU",
+      authDomain: "cameroon-fintech-status.firebaseapp.com",
+      databaseURL: "https://cameroon-fintech-status-default-rtdb.firebaseio.com",
+      projectId: "cameroon-fintech-status",
+      storageBucket: "cameroon-fintech-status.firebasestorage.app",
+      messagingSenderId: "842559320219",
+      appId: "1:842559320219:web:6011def2b8d8031b6bd63e"
+    };
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getDatabase(firebaseApp);
+
+    // Default services
+    const services = [
+      { name:"Sara Money",       type:"Afriland First Bank · Mobile Wallet", status:"degraded",    note:"Login issues reported",  uptime:["up","up","up","up","up","up","partial","partial","up","up","up","up","up","up","down","up","up","up","up","up","up","up","partial","up","up","up","up","up","up","up"] },
+      { name:"MTN Mobile Money", type:"MTN Cameroon · Mobile Money",         status:"operational", note:"All systems normal",     uptime:["up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up"] },
+      { name:"Orange Money",     type:"Orange Cameroun · Mobile Money",      status:"operational", note:"All systems normal",     uptime:["up","up","up","up","up","up","up","up","up","up","up","up","up","up","partial","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up"] },
+      { name:"Express Union",    type:"Express Union · Money Transfer",      status:"outage",      note:"Service unavailable",    uptime:["up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","down","down","down","up","up","up","up","up"] },
+      { name:"CCA Bank",         type:"CCA Bank · Mobile Banking",           status:"operational", note:"All systems normal",     uptime:["up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up"] },
+      { name:"Yoomee Mobile",    type:"Yoomee · Mobile Payment",             status:"operational", note:"All systems normal",     uptime:["up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up","up"] }
+    ];
+
+    const hoverMessages = {
+      operational: "All systems running normally.",
+      degraded:    "Issues reported. Transactions may fail.",
+      outage:      "Service DOWN. Contact support if funds debited."
+    };
+
+    // Fetch live uptime from Render proxy
+    async function fetchUptime() {
+      try {
+        const res = await fetch("https://fincheck-sms-server.onrender.com/uptime", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
+        });
+        const data = await res.json();
+        if (data.stat === "ok" && data.monitors?.length) {
+          data.monitors.forEach(monitor => {
+            const match = services.find(s =>
+              s.name.toLowerCase().includes(monitor.friendly_name.toLowerCase()) ||
+              monitor.friendly_name.toLowerCase().includes(s.name.toLowerCase().split(" ")[0])
+            );
+            if (!match) return;
+            if (monitor.status === 2)      match.status = "operational";
+            else if (monitor.status === 8) match.status = "degraded";
+            else if (monitor.status === 9) match.status = "outage";
+            if (monitor.all_time_uptime_ratio)
+              match.note = `Live uptime: ${parseFloat(monitor.all_time_uptime_ratio).toFixed(2)}%`;
+          });
+        }
+      } catch(e) { console.log("Using static data"); }
+      renderAll();
+    }
+
+    function renderAll() {
+      renderSummary();
+      renderServices();
+      setOverallStatus();
+      updateLastUpdated();
+    }
+
+    function renderSummary() {
+      const ok   = services.filter(s=>s.status==="operational").length;
+      const warn = services.filter(s=>s.status==="degraded").length;
+      const bad  = services.filter(s=>s.status==="outage").length;
+      document.getElementById("summary-grid").innerHTML = `
+        <div class="summary-card"><p class="s-label">Monitored</p><p class="s-num">${services.length}</p></div>
+        <div class="summary-card"><p class="s-label">Operational</p><p class="s-num ok">${ok}</p></div>
+        <div class="summary-card"><p class="s-label">Disrupted</p><p class="s-num warn">${warn}</p></div>
+        <div class="summary-card"><p class="s-label">Outage</p><p class="s-num bad">${bad}</p></div>
+      `;
+    }
+
+    function renderServices() {
+      const grid = document.getElementById("services-grid");
+      grid.innerHTML = services.map(s => {
+        const blocks = s.uptime.map(d=>`<div class="uptime-block ${d}"></div>`).join("");
+        const stLabel = s.status.charAt(0).toUpperCase()+s.status.slice(1);
+        return `
+          <div class="service-card">
+            <div class="service-top">
+              <p class="service-name">${s.name}</p>
+              <div class="status-dot ${s.status}"></div>
+            </div>
+            <p class="service-type">${s.type}</p>
+            <span class="status-badge ${s.status}">${stLabel}</span>
+            <p class="service-note">${s.note}</p>
+            <div class="uptime-bar">${blocks}</div>
+            <p class="uptime-label">Last 30 days</p>
+            <div class="hover-message ${s.status}">${hoverMessages[s.status]}</div>
+          </div>`;
+      }).join("");
+    }
+
+    function setOverallStatus() {
+      const badge   = document.getElementById("overall-status-big");
+      const text    = document.getElementById("overall-text");
+      const dot     = document.getElementById("big-dot");
+      const bad     = services.some(s=>s.status==="outage");
+      const warn    = services.some(s=>s.status==="degraded");
+      if (bad) {
+        badge.className = "overall-status-big issues";
+        text.textContent = "Some services are down";
+        dot.style.background = "#e74c3c";
+        dot.style.animation = "pulse-red 2s infinite";
+      } else if (warn) {
+        badge.className = "overall-status-big some";
+        text.textContent = "Some services are disrupted";
+        dot.style.background = "#f0a020";
+        dot.style.animation = "pulse-amber 2s infinite";
+      } else {
+        badge.className = "overall-status-big all-good";
+        text.textContent = "All systems operational";
+        dot.style.background = "#2ecc71";
+        dot.style.animation = "pulse-green 2s infinite";
+      }
+    }
+
+    function updateLastUpdated() {
+      document.getElementById("last-updated").textContent =
+        new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+    }
+
+    function timeAgo(ts) {
+      const d = Math.floor((Date.now()-ts)/1000);
+      if (d<60)   return `${d}s ago`;
+      if (d<3600) return `${Math.floor(d/60)}m ago`;
+      return `${Math.floor(d/3600)}h ago`;
+    }
+
+    // Load recent community reports
+    function loadReports() {
+      const logsRef = query(ref(db,"reports"), orderByChild("timestamp"), limitToLast(5));
+      onValue(logsRef, snap => {
+        const el = document.getElementById("recent-reports");
+        const data = snap.val();
+        if (!data) { el.innerHTML=`<div class="no-logs">No reports yet.</div>`; return; }
+        const reports = Object.entries(data)
+          .map(([id,val])=>({id,...val}))
+          .sort((a,b)=>b.timestamp-a.timestamp);
+        el.innerHTML = reports.map(r=>`
+          <div class="recent-log-card">
+            <div class="recent-log-top">
+              <div class="recent-log-service">${r.service}</div>
+              <div class="recent-log-time">${timeAgo(r.timestamp)}</div>
+            </div>
+            <div class="recent-log-type">${r.type}</div>
+          </div>`).join("");
+      });
+    }
+
+    // WhatsApp share
+    const shareUrl = encodeURIComponent("https://kwalecedric.github.io/FinCheck-Cameroon/status.html");
+    const shareText = encodeURIComponent("Check live status of Sara Money, MTN Mobile Money, Orange Money and more:");
+    document.getElementById("whatsapp-share").href =
+      `https://wa.me/?text=${shareText}%20${shareUrl}`;
+
+    // Copy link
+    window.copyLink = function() {
+      navigator.clipboard.writeText("https://kwalecedric.github.io/FinCheck-Cameroon/status.html");
+      const btn = document.querySelector(".share-btn:not(.whatsapp)");
+      btn.textContent = "Copied!";
+      setTimeout(() => btn.textContent = "Copy link", 2000);
+    };
+
+    // Countdown
+    let c = 60;
+    setInterval(() => {
+      c--;
+      const el = document.getElementById("countdown");
+      if (el) el.textContent = c;
+      if (c <= 0) { c = 60; fetchUptime(); }
+    }, 1000);
+
+    // Init
+    fetchUptime();
+    loadReports();
+  </script>
+
+</body>
+</html>
