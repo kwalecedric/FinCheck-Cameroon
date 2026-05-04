@@ -69,6 +69,7 @@ async function sendSMSAlert(phone, userName, serviceName, status, details) {
 // ── UPTIMEROBOT ───────────────────────────────────────
 const UPTIME_API_KEY = "u3467999-6008331abb99448af28067b2";
 let previousStatuses = {};
+window.previousStatuses = previousStatuses;
 let alertHistory     = [];
 
 async function fetchUptimeData() {
@@ -906,6 +907,38 @@ function startLiveLogs() {
       </div>`).join("");
   });
 }
+
+// ── TEST ALERT (remove in production) ─────────────────
+window.testAlert = async function(serviceName) {
+  const alertPrefs = await loadAlertPrefs();
+  if (!alertPrefs || !alertPrefs.email) {
+    console.log("No alert prefs saved. Go to Alerts page and save first.");
+    return;
+  }
+  const statusText = "DOWN — Test alert from FinCheck";
+  console.log("Firing test alert for:", serviceName);
+
+  const emailSent = await sendEmailAlert(
+    alertPrefs.email,
+    alertPrefs.name || "FinCheck User",
+    serviceName,
+    statusText,
+    "This is a test alert — no real outage detected."
+  );
+
+  let smsSent = false;
+  if (alertPrefs.phone) {
+    smsSent = await sendSMSAlert(
+      alertPrefs.phone,
+      alertPrefs.name || "FinCheck User",
+      serviceName,
+      statusText,
+      "This is a test alert."
+    );
+  }
+
+  console.log(`Email sent: ${emailSent} | SMS sent: ${smsSent}`);
+};
 
 function timeAgo(ts) {
   const d = Math.floor((Date.now()-ts)/1000);
