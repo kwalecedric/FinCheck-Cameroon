@@ -22,7 +22,8 @@
         <a href="#" class="nav-link" onclick="showPage('services',this)" data-i18n="nav_services">My Services</a>
         <a href="#" class="nav-link" onclick="showPage('logs',this)" data-i18n="nav_logs">Live Logs</a>
         <a href="#" class="nav-link" onclick="showPage('alerts',this)" data-i18n="nav_alerts">Alerts</a>
-    </div>
+        <a href="#" class="nav-link" onclick="showPage('reports',this)" data-i18n="nav_reports">Reports</a>
+      </div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="lang-toggle">
           <button class="lang-btn active" onclick="setLang('en')">EN</button>
@@ -306,5 +307,61 @@
   </footer>
 
   <script type="module" src="app.js"></script>
+
+    <!-- REPORTS PAGE -->
+  <div id="page-reports" class="page">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <h1 data-i18n="reports_title">SLA Reports</h1>
+          <p class="subtitle" data-i18n="reports_sub">Generate and download monthly service reports</p>
+        </div>
+      </div>
+
+      <!-- REPORT CONFIG -->
+      <div class="monitor-card" style="margin-bottom:1.5rem">
+        <h2 data-i18n="reports_config">Report configuration</h2>
+        <p class="subtitle" style="margin-bottom:1.25rem" data-i18n="reports_config_sub">
+          Customise your report before downloading
+        </p>
+        <div class="add-service-form">
+          <div class="form-group">
+            <label data-i18n="reports_org">Organisation name</label>
+            <input type="text" id="report-org" class="form-input"
+              placeholder="e.g. Afriland First Bank" data-i18n-ph="reports_org_ph"/>
+          </div>
+          <div class="form-group">
+            <label data-i18n="reports_period">Report period</label>
+            <select id="report-period" class="form-select">
+              <option value="april">April 2026</option>
+              <option value="march">March 2026</option>
+              <option value="february">February 2026</option>
+              <option value="january">January 2026</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label data-i18n="reports_include">Include in report</label>
+            <div id="report-service-checks" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;"></div>
+          </div>
+          <button onclick="generateReport()" class="primary-btn" data-i18n="reports_generate">
+            Generate PDF Report
+          </button>
+          <div id="report-feedback" class="feedback"></div>
+        </div>
+      </div>
+
+      <!-- REPORT PREVIEW -->
+      <div class="monitor-card" id="report-preview" style="display:none">
+        <h2 data-i18n="reports_preview">Report preview</h2>
+        <p class="subtitle" style="margin-bottom:1.25rem">Summary of what will be included in the PDF</p>
+        <div id="preview-content"></div>
+        <button onclick="downloadPDF()" class="primary-btn" style="margin-top:1.25rem" data-i18n="reports_download">
+          Download PDF
+        </button>
+      </div>
+
+    </div>
+  </div>
+  
 </body>
 </html>

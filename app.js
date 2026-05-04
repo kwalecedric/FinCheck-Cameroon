@@ -252,6 +252,18 @@ const translations = {
     alerts_no_history:"No alerts sent yet this session.",
     alert_sent_via:"Alert sent via email",
     alert_failed:"Alert failed to send",
+    nav_reports:       "Reports",
+    reports_title:     "SLA Reports",
+    reports_sub:       "Generate and download monthly service reports",
+    reports_config:    "Report configuration",
+    reports_config_sub:"Customise your report before downloading",
+    reports_org:       "Organisation name",
+    reports_org_ph:    "e.g. Afriland First Bank",
+    reports_period:    "Report period",
+    reports_include:   "Services to include",
+    reports_generate:  "Generate PDF Report",
+    reports_preview:   "Report preview",
+    reports_download:  "Download PDF",
   },
   fr: {
     brand:"FinCheck Cameroun", nav_overview:"Aperçu", nav_monitoring:"Surveillance",
@@ -330,6 +342,18 @@ const translations = {
     alerts_no_history:"Aucune alerte envoyée cette session.",
     alert_sent_via:"Alerte envoyée par email",
     alert_failed:"Échec de l'envoi de l'alerte",
+    nav_reports:       "Rapports",
+    reports_title:     "Rapports SLA",
+    reports_sub:       "Générez et téléchargez des rapports mensuels",
+    reports_config:    "Configuration du rapport",
+    reports_config_sub:"Personnalisez votre rapport avant de le télécharger",
+    reports_org:       "Nom de l'organisation",
+    reports_org_ph:    "ex: Afriland First Bank",
+    reports_period:    "Période du rapport",
+    reports_include:   "Services à inclure",
+    reports_generate:  "Générer le rapport PDF",
+    reports_preview:   "Aperçu du rapport",
+    reports_download:  "Télécharger le PDF",
   }
 };
 
@@ -353,6 +377,7 @@ window.setLang = function(lang) {
   renderTracker();
   renderManageServices();
   renderAlertToggles();
+  renderReportServiceChecks(); 
 };
 
 function applyTranslations() {
@@ -421,6 +446,7 @@ window.showPage = function(name, link) {
   if (name === "logs")    startLiveLogs();
   if (name === "services") renderManageServices();
   if (name === "alerts")  renderAlertToggles();
+  if (name === "reports") renderReportServiceChecks();
 };
 
 // ── CLOCK & COUNTDOWN ─────────────────────────────────
@@ -938,6 +964,227 @@ window.testAlert = async function(serviceName) {
   }
 
   console.log(`Email sent: ${emailSent} | SMS sent: ${smsSent}`);
+};
+
+// ── SLA REPORTS ───────────────────────────────────────
+let reportData = null;
+
+function renderReportServiceChecks() {
+  const el = document.getElementById("report-service-checks");
+  if (!el) return;
+  el.innerHTML = userServices.map((s,i) => `
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+      <input type="checkbox" id="rcheck-${i}" checked
+        style="width:16px;height:16px;accent-color:#2ecc71;cursor:pointer;"/>
+      <span style="font-size:14px;color:rgba(255,255,255,0.8);">${s.name}</span>
+    </label>
+  `).join("");
+}
+
+window.generateReport = function() {
+  const org    = document.getElementById("report-org").value.trim() || "FinCheck Cameroon";
+  const period = document.getElementById("report-period");
+  const periodText = period.options[period.selectedIndex].text;
+  const fb     = document.getElementById("report-feedback");
+
+  // Get selected services
+  const selected = userServices.filter((s,i) => {
+    const cb = document.getElementById(`rcheck-${i}`);
+    return cb && cb.checked;
+  });
+
+  if (!selected.length) {
+    fb.textContent = "Please select at least one service.";
+    fb.className = "feedback error";
+    return;
+  }
+
+  // Calculate metrics per service
+  const metrics = selected.map(s => {
+    const upDays     = s.uptime.filter(d=>d==="up").length;
+    const partialDays = s.uptime.filter(d=>d==="partial").length;
+    const downDays   = s.uptime.filter(d=>d==="down").length;
+    const uptimePct  = ((upDays + partialDays*0.5) / s.uptime.length * 100).toFixed(2);
+    const incidents  = s.uptime.filter(d=>d!=="up").length;
+    const statusColor = uptimePct >= 99 ? "#2ecc71" : uptimePct >= 95 ? "#f0a020" : "#e74c3c";
+    return { ...s, upDays, partialDays, downDays, uptimePct, incidents, statusColor };
+  });
+
+  const avgUptime = (metrics.reduce((sum,m)=>sum+parseFloat(m.uptimePct),0)/metrics.length).toFixed(2);
+  const totalIncidents = metrics.reduce((sum,m)=>sum+m.incidents,0);
+
+  reportData = { org, periodText, metrics, avgUptime, totalIncidents };
+
+  // Show preview
+  const preview = document.getElementById("report-preview");
+  const content = document.getElementById("preview-content");
+  preview.style.display = "block";
+
+  content.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.25rem;">
+      <div class="summary-card">
+        <p class="s-label">Services covered</p>
+        <p class="s-num">${metrics.length}</p>
+      </div>
+      <div class="summary-card">
+        <p class="s-label">Avg uptime</p>
+        <p class="s-num ok">${avgUptime}%</p>
+      </div>
+      <div class="summary-card">
+        <p class="s-label">Total incidents</p>
+        <p class="s-num warn">${totalIncidents}</p>
+      </div>
+      <div class="summary-card">
+        <p class="s-label">Report period</p>
+        <p class="s-num" style="font-size:15px">${periodText}</p>
+      </div>
+    </div>
+    ${metrics.map(m => `
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+           border-radius:10px;padding:1rem;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <p style="font-size:14px;font-weight:500;color:#fff;margin:0;">${m.name}</p>
+          <span style="font-size:13px;font-weight:500;color:${m.statusColor};">${m.uptimePct}% uptime</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:8px;overflow:hidden;">
+          <div style="width:${m.uptimePct}%;height:100%;border-radius:99px;background:${m.statusColor};"></div>
+        </div>
+        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:6px 0 0;">
+          ${m.incidents} incident${m.incidents!==1?"s":""} · ${m.downDays} day${m.downDays!==1?"s":""} down
+        </p>
+      </div>`).join("")}
+  `;
+
+  fb.textContent = "✓ Report ready. Click Download PDF below.";
+  fb.className = "feedback success";
+  setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; }, 3000);
+
+  preview.scrollIntoView({ behavior: "smooth" });
+};
+
+window.downloadPDF = async function() {
+  if (!reportData) return;
+  const fb = document.getElementById("report-feedback");
+  fb.textContent = "Generating PDF...";
+  fb.className = "feedback";
+
+  try {
+    // Load jsPDF
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    document.head.appendChild(script);
+    await new Promise(resolve => script.onload = resolve);
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    let y = 0;
+
+    // ── HEADER ──
+    doc.setFillColor(10, 31, 20);
+    doc.rect(0, 0, pageW, 45, "F");
+    doc.setTextColor(46, 204, 113);
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    doc.text("FinCheck Cameroon", 15, 18);
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text("Service Level Agreement Report", 15, 27);
+    doc.setTextColor(150, 200, 150);
+    doc.setFontSize(10);
+    doc.text(`${reportData.periodText} · Prepared for: ${reportData.org}`, 15, 35);
+    doc.text(`Generated: ${new Date().toLocaleDateString("en-GB")}`, 15, 42);
+    y = 58;
+
+    // ── SUMMARY BOX ──
+    doc.setFillColor(240, 248, 240);
+    doc.roundedRect(15, y-6, pageW-30, 28, 3, 3, "F");
+    doc.setTextColor(30, 80, 50);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("EXECUTIVE SUMMARY", 22, y+2);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Services monitored: ${reportData.metrics.length}`, 22, y+10);
+    doc.text(`Average uptime: ${reportData.avgUptime}%`, 22, y+17);
+    doc.text(`Total incidents: ${reportData.totalIncidents}`, 100, y+10);
+    doc.text(`Report period: ${reportData.periodText}`, 100, y+17);
+    y += 36;
+
+    // ── SERVICE DETAILS ──
+    doc.setTextColor(10, 31, 20);
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.text("Service Performance", 15, y);
+    y += 8;
+
+    reportData.metrics.forEach(m => {
+      if (y > pageH - 40) { doc.addPage(); y = 20; }
+
+      // Service name row
+      doc.setFillColor(245, 252, 245);
+      doc.roundedRect(15, y-2, pageW-30, 26, 2, 2, "F");
+      doc.setTextColor(20, 60, 30);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text(m.name, 20, y+6);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(80, 120, 90);
+      doc.text(m.type, 20, y+12);
+
+      // Uptime percentage
+      const pct = parseFloat(m.uptimePct);
+      const color = pct>=99 ? [46,204,113] : pct>=95 ? [240,160,32] : [231,76,60];
+      doc.setTextColor(...color);
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text(`${m.uptimePct}%`, pageW-40, y+8);
+
+      // Progress bar
+      const barX = 20, barY = y+16, barW = pageW-60, barH = 3;
+      doc.setFillColor(220, 240, 220);
+      doc.roundedRect(barX, barY, barW, barH, 1, 1, "F");
+      doc.setFillColor(...color);
+      doc.roundedRect(barX, barY, barW*(pct/100), barH, 1, 1, "F");
+
+      // Incidents
+      doc.setTextColor(100, 140, 110);
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${m.incidents} incidents · ${m.downDays} days down · ${m.upDays} days up`, 20, y+23);
+
+      y += 34;
+    });
+
+    // ── FOOTER ──
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i=1; i<=totalPages; i++) {
+      doc.setPage(i);
+      doc.setFillColor(10, 31, 20);
+      doc.rect(0, pageH-14, pageW, 14, "F");
+      doc.setTextColor(100, 180, 130);
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.text("FinCheck Cameroon · Built by Ngong Kwale Cedric · kwalecedric.github.io/FinCheck-Cameroon", 15, pageH-5);
+      doc.text(`Page ${i} of ${totalPages}`, pageW-25, pageH-5);
+    }
+
+    // Save
+    const filename = `FinCheck_SLA_${reportData.periodText.replace(" ","_")}_${reportData.org.replace(/\s+/g,"_")}.pdf`;
+    doc.save(filename);
+
+    fb.textContent = "✓ PDF downloaded successfully!";
+    fb.className = "feedback success";
+    setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; }, 3000);
+
+  } catch(e) {
+    console.error(e);
+    fb.textContent = "Failed to generate PDF. Please try again.";
+    fb.className = "feedback error";
+  }
 };
 
 function timeAgo(ts) {
