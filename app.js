@@ -1466,12 +1466,12 @@ window.downloadPDF = async function() {
     fb.className = "feedback success";
     setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; }, 3000);
 
-  } catch(e) {
+   catch(e) {
     console.error(e);
     fb.textContent = "Failed to generate PDF. Please try again.";
     fb.className = "feedback error";
   }
-};
+
 
 function timeAgo(ts) {
   const d = Math.floor((Date.now()-ts)/1000);
