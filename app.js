@@ -1445,33 +1445,6 @@ window.downloadPDF = async function() {
     fb.className = "feedback error";
   }
 };
-    // ── FOOTER ──
-    const totalPages = doc.internal.getNumberOfPages();
-    for (let i=1; i<=totalPages; i++) {
-      doc.setPage(i);
-      doc.setFillColor(10, 31, 20);
-      doc.rect(0, pageH-14, pageW, 14, "F");
-      doc.setTextColor(100, 180, 130);
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "normal");
-      doc.text("FinCheck Cameroon · Built by Ngong Kwale Cedric · kwalecedric.github.io/FinCheck-Cameroon", 15, pageH-5);
-      doc.text(`Page ${i} of ${totalPages}`, pageW-25, pageH-5);
-    }
-
-    // Save
-    const filename = `FinCheck_SLA_${reportData.periodText.replace(" ","_")}_${reportData.org.replace(/\s+/g,"_")}.pdf`;
-    doc.save(filename);
-
-    fb.textContent = "✓ PDF downloaded successfully!";
-    fb.className = "feedback success";
-    setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; }, 3000);
-
-   catch(e) {
-    console.error(e);
-    fb.textContent = "Failed to generate PDF. Please try again.";
-    fb.className = "feedback error";
-  }
-
 
 function timeAgo(ts) {
   const d = Math.floor((Date.now()-ts)/1000);
