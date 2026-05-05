@@ -1125,7 +1125,8 @@ window.downloadPDF = async function() {
       doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
       doc.text(label, 22, y);
-      doc.setTextColor(...(color || [20, 60, 30]));
+      const col = color || [20, 60, 30];
+      doc.setTextColor(col[0], col[1], col[2]);
       doc.setFont("helvetica", "bold");
       doc.text(String(value), pageW-22, y, {align:"right"});
       doc.setDrawColor(220, 240, 220);
@@ -1141,9 +1142,9 @@ window.downloadPDF = async function() {
         "Critical": { bg:[120,0,0],     text:[255,200,200] }
       };
       const c = configs[rating] || configs["Low"];
-      doc.setFillColor(...c.bg);
+      doc.setFillColor(c.bg[0], c.bg[1], c.bg[2]);
       doc.roundedRect(pageW-50, y-6, 30, 8, 2, 2, "F");
-      doc.setTextColor(...c.text);
+      doc.setTextColor(c.text[0], c.text[1], c.text[2]);
       doc.setFontSize(8);
       doc.setFont("helvetica", "bold");
       doc.text(rating, pageW-35, y, {align:"center"});
@@ -1160,7 +1161,7 @@ window.downloadPDF = async function() {
     function progressBar(x, barY, width, height, pct, color) {
       doc.setFillColor(220, 240, 220);
       doc.roundedRect(x, barY, width, height, 1, 1, "F");
-      doc.setFillColor(...color);
+      doc.setFillColor(color[0], color[1], color[2]);
       doc.roundedRect(x, barY, width*(Math.min(pct,100)/100), height, 1, 1, "F");
     }
 
@@ -1207,12 +1208,13 @@ window.downloadPDF = async function() {
     const overallColor = parseFloat(reportData.avgUptime) >= 99
       ? [46,204,113] : parseFloat(reportData.avgUptime) >= 95
       ? [240,160,32] : [231,76,60];
-    doc.setFillColor(...overallColor.map(c => Math.round(c*0.2)));
+    const oc = overallColor;
+    doc.setFillColor(Math.round(oc[0]*0.2), Math.round(oc[1]*0.2), Math.round(oc[2]*0.2));
     doc.roundedRect(25, 185, pageW-50, 35, 4, 4, "F");
-    doc.setDrawColor(...overallColor);
+    doc.setDrawColor(overallColor[0], overallColor[1], overallColor[2]);
     doc.setLineWidth(0.5);
     doc.roundedRect(25, 185, pageW-50, 35, 4, 4, "S");
-    doc.setTextColor(...overallColor);
+    doc.setTextColor(overallColor[0], overallColor[1], overallColor[2]);
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.text("OVERALL PLATFORM UPTIME", 35, 198);
@@ -1369,7 +1371,9 @@ window.downloadPDF = async function() {
       doc.setFillColor(risk==="Critical"?[255,240,240]:risk==="High"?[255,248,235]:risk==="Medium"?[255,252,230]:[235,252,240]);
       doc.roundedRect(22, y-3, pageW-44, 10, 2, 2, "F");
       const recColor = risk==="Critical"?[150,30,30]:risk==="High"?[140,80,10]:risk==="Medium"?[120,100,10]:[30,100,50];
-      doc.setTextColor(...recColor);
+      doc.setTextColor(recColor[0], recColor[1], recColor[2]);
+      doc.setFillColor(...color);
+      progressBar(22, y, pageW-44, 4, pct, color);
       doc.setFontSize(8);
       doc.setFont("helvetica","bold");
       doc.text("Recommendation: ", 26, y+3);
