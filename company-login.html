@@ -268,7 +268,7 @@
     // You add new keys here in Firebase under /licenceKeys/
     async function validateKey(key) {
       try {
-        const snap = await get(ref(db, `licenceKeys/${key.replace(/-/g,"_")}`));
+        const snap = await get(ref(db, `licenceKeys/${key}`));
         return snap.exists() && snap.val().active === true;
       } catch(e) { return false; }
     }
