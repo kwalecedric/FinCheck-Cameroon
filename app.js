@@ -1352,7 +1352,7 @@ window.downloadPDF = async function() {
       const blockW = (pageW-44)/30;
       m.uptime.forEach((d, i) => {
         const blockColor = d==="up"?[46,204,113]:d==="partial"?[240,160,32]:[231,76,60];
-        doc.setFillColor(...blockColor);
+        doc.setFillColor(blockColor[0], blockColor[1], blockColor[2]);
         doc.rect(22 + i*blockW, y, blockW-0.5, 5, "F");
       });
       doc.setTextColor(120,160,130);
@@ -1376,7 +1376,6 @@ window.downloadPDF = async function() {
       doc.roundedRect(22, y-3, pageW-44, 10, 2, 2, "F");
       const recColor = risk==="Critical"?[150,30,30]:risk==="High"?[140,80,10]:risk==="Medium"?[120,100,10]:[30,100,50];
       doc.setTextColor(recColor[0], recColor[1], recColor[2]);
-     doc.setFillColor(color[0], color[1], color[2]);
       progressBar(22, y, pageW-44, 4, pct, color);
       doc.setFontSize(8);
       doc.setFont("helvetica","bold");
