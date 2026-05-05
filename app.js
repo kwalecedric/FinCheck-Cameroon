@@ -1315,7 +1315,7 @@ window.downloadPDF = async function() {
       doc.setTextColor(80,110,90);
       doc.setFontSize(8);
       doc.text("Uptime", 22, y);
-      doc.setTextColor(...color);
+      doc.setTextColor(color[0], color[1], color[2]);
       doc.setFont("helvetica","bold");
       doc.text(`${m.uptimePct}%`, pageW-22, y, {align:"right"});
       y += 3;
@@ -1368,11 +1368,15 @@ window.downloadPDF = async function() {
       else if (risk === "Medium") recommendation = `${m.name} is acceptable but monitor closely for deterioration.`;
       else recommendation = `${m.name} is performing excellently. Maintain current standards.`;
 
-      doc.setFillColor(risk==="Critical"?[255,240,240]:risk==="High"?[255,248,235]:risk==="Medium"?[255,252,230]:[235,252,240]);
+      if (risk === "Critical")     doc.setFillColor(255, 240, 240);
+      else if (risk === "High")    doc.setFillColor(255, 248, 235);
+      else if (risk === "Medium")  doc.setFillColor(255, 252, 230);
+      else                         doc.setFillColor(235, 252, 240);
+
       doc.roundedRect(22, y-3, pageW-44, 10, 2, 2, "F");
       const recColor = risk==="Critical"?[150,30,30]:risk==="High"?[140,80,10]:risk==="Medium"?[120,100,10]:[30,100,50];
       doc.setTextColor(recColor[0], recColor[1], recColor[2]);
-      doc.setFillColor(...color);
+     doc.setFillColor(color[0], color[1], color[2]);
       progressBar(22, y, pageW-44, 4, pct, color);
       doc.setFontSize(8);
       doc.setFont("helvetica","bold");
