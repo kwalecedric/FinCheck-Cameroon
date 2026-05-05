@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinCheck · Company Dashboard</title>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    /* ── THEME VARIABLES ── */
+    body.dark {
+      --bg: #0a1f14;
+      --bg2: rgba(255,255,255,0.07);
+      --bg3: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.12);
+      --text: #fff;
+      --text2: rgba(255,255,255,0.6);
+      --text3: rgba(255,255,255,0.35);
+      --nav-bg: rgba(255,255,255,0.07);
+      --card-bg: rgba(255,255,255,0.07);
+      --input-bg: rgba(255,255,255,0.07);
+      --overlay: rgba(10,31,20,0.55);
+    }
+    body.light {
+      --bg: #f0f4f0;
+      --bg2: #ffffff;
+      --bg3: #f8fbf8;
+      --border: #e0e8e0;
+      --text: #111;
+      --text2: #555;
+      --text3: #999;
+      --nav-bg: #ffffff;
+      --card-bg: #ffffff;
+      --input-bg: #f8f8f8;
+      --overlay: transparent;
+    }
+
+    body {
+      font-family: sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.dark::before {
+      content:"";
+      position:fixed; inset:0; z-index:0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(26,122,74,0.3) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(0,80,160,0.2) 0%, transparent 60%),
+        #0a1f14;
+    }
+    body.dark::after {
+      content:""; position:fixed; inset:0; z-index:1;
+      background: var(--overlay); pointer-events:none;
+    }
+
+    .navbar, .page, .footer { position:relative; z-index:2; }
+
+    /* ── NAV ── */
+    .navbar {
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top:0; z-index:100;
+      backdrop-filter: blur(12px);
+    }
+    .nav-inner {
+      max-width: 1100px; margin:0 auto;
+      padding: 0 1.5rem;
+      display: flex; align-items:center;
+      justify-content:space-between; height:56px;
+      gap: 12px;
+    }
+    .nav-brand {
+      font-size:15px; font-weight:500;
+      display:flex; align-items:center; gap:8px;
+      color: var(--text);
+    }
+    .brand-dot {
+      width:10px; height:10px; border-radius:50%;
+      background:#2ecc71; animation:pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow:0 0 0 0 rgba(46,204,113,0.6); }
+      50%     { box-shadow:0 0 0 6px rgba(46,204,113,0); }
+    }
+    .b2b-tag {
+      font-size:10px; font-weight:600;
+      padding:2px 8px; border-radius:99px;
+      background:rgba(46,204,113,0.15);
+      color:#2ecc71; border:1px solid rgba(46,204,113,0.3);
+      letter-spacing:0.05em;
+    }
+    .nav-links { display:flex; gap:2px; flex-wrap:wrap; }
+    .nav-link {
+      text-decoration:none; font-size:13px;
+      color:var(--text2); padding:6px 10px;
+      border-radius:8px; transition:all 0.2s; cursor:pointer;
+      background:none; border:none; font-family:sans-serif;
+    }
+    .nav-link:hover  { background:rgba(46,204,113,0.1); color:var(--text); }
+    .nav-link.active { background:rgba(46,204,113,0.15); color:#2ecc71; font-weight:500; }
+
+    .nav-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .company-name { font-size:13px; color:var(--text2); white-space:nowrap; }
+
+    /* Theme toggle */
+    .theme-toggle {
+      display:flex; gap:2px;
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:8px; padding:3px;
+    }
+    .theme-btn {
+      padding:4px 10px; border-radius:6px; border:none;
+      background:transparent; color:var(--text2);
+      font-size:12px; cursor:pointer; transition:all 0.2s;
+    }
+    .theme-btn.active { background:rgba(46,204,113,0.2); color:#2ecc71; }
+    .signout-btn {
+      font-size:12px; padding:5px 12px;
+      border:1px solid var(--border);
+      background:transparent; color:var(--text2);
+      border-radius:6px; cursor:pointer; transition:all 0.2s;
+    }
+    .signout-btn:hover { background:rgba(231,76,60,0.1); color:#ff8a8a; border-color:rgba(231,76,60,0.3); }
+
+    /* ── LAYOUT ── */
+    .page { display:none; }
+    .page.active { display:block; }
+    .container { max-width:1100px; margin:0 auto; padding:2rem 1.5rem; }
+
+    /* ── CARDS ── */
+    .card {
+      background:var(--card-bg);
+      border:1px solid var(--border);
+      border-radius:14px; padding:1.5rem;
+      margin-bottom:1.25rem;
+      backdrop-filter:blur(10px);
+    }
+    body.light .card { box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+
+    /* ── HERO ── */
+    .hero {
+      display:flex; justify-content:space-between;
+      align-items:flex-start; margin-bottom:1.5rem;
+      flex-wrap:wrap; gap:12px;
+    }
+    h1 { font-size:26px; font-weight:500; color:var(--text); margin-bottom:4px; }
+    h2 { font-size:16px; font-weight:500; color:var(--text); margin-bottom:8px; }
+    .sub { font-size:13px; color:var(--text3); }
+
+    /* ── SUMMARY GRID ── */
+    .summary-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+      gap:10px; margin-bottom:1.25rem;
+    }
+    .summary-card {
+      background:var(--card-bg); border:1px solid var(--border);
+      border-radius:10px; padding:1rem;
+    }
+    .s-label { font-size:12px; color:var(--text2); margin-bottom:4px; }
+    .s-num   { font-size:26px; font-weight:500; color:var(--text); }
+    .s-num.ok   { color:#2ecc71; }
+    .s-num.warn { color:#f0a020; }
+    .s-num.bad  { color:#e74c3c; }
+
+    /* ── STATUS BADGE ── */
+    .status-badge {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 18px; border-radius:99px;
+      font-size:14px; font-weight:500; border:1px solid;
+    }
+    .status-badge.operational { background:rgba(46,204,113,0.15); color:#2ecc71; border-color:rgba(46,204,113,0.4); }
+    .status-badge.degraded    { background:rgba(240,160,32,0.15);  color:#f0a020; border-color:rgba(240,160,32,0.4); }
+    .status-badge.outage      { background:rgba(231,76,60,0.15);   color:#e74c3c; border-color:rgba(231,76,60,0.4); }
+    .status-dot {
+      width:10px; height:10px; border-radius:50%;
+    }
+    .status-dot.operational { background:#2ecc71; animation:pulse 2s infinite; }
+    .status-dot.degraded    { background:#f0a020; }
+    .status-dot.outage      { background:#e74c3c; animation:pulseRed 2s infinite; }
+    @keyframes pulseRed {
+      0%,100% { box-shadow:0 0 0 0 rgba(231,76,60,0.6); }
+      50%     { box-shadow:0 0 0 6px rgba(231,76,60,0); }
+    }
+
+    /* ── UPTIME BAR ── */
+    .uptime-bar-wrap { background:rgba(255,255,255,0.08); border-radius:99px; height:8px; overflow:hidden; margin:8px 0 4px; }
+    body.light .uptime-bar-wrap { background:#e8f0e8; }
+    .uptime-bar-fill { height:100%; border-radius:99px; transition:width 1s ease; }
+    .uptime-30 { display:flex; gap:2px; margin-top:10px; }
+    .uptime-block { flex:1; height:8px; border-radius:2px; }
+    .uptime-block.up      { background:#2ecc71; opacity:0.8; }
+    .uptime-block.partial { background:#f0a020; opacity:0.8; }
+    .uptime-block.down    { background:#e74c3c; opacity:0.8; }
+
+    /* ── COMPLAINT CARDS ── */
+    .complaint-card {
+      background:var(--bg3); border:1px solid var(--border);
+      border-left:3px solid #f0a020;
+      border-radius:8px; padding:1rem 1.25rem;
+      margin-bottom:8px;
+      animation: slideUp 0.3s forwards;
+      opacity:0;
+    }
+    @keyframes slideUp { to { opacity:1; transform:translateY(0); } }
+    .complaint-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+    .complaint-type { font-size:14px; font-weight:500; color:var(--text); }
+    .complaint-time { font-size:12px; color:var(--text3); }
+    .complaint-desc { font-size:13px; color:var(--text2); margin-bottom:6px; }
+    .complaint-user { font-size:12px; color:var(--text3); }
+
+    /* ── RESPOND FORM ── */
+    .respond-form { margin-top:8px; display:none; }
+    .respond-form textarea {
+      width:100%; padding:8px 12px;
+      background:var(--input-bg); border:1px solid var(--border);
+      border-radius:6px; color:var(--text);
+      font-size:13px; font-family:sans-serif;
+      outline:none; resize:vertical; margin-bottom:6px;
+    }
+    .respond-btn {
+      font-size:12px; padding:5px 14px;
+      background:#2ecc71; color:#0a1f14;
+      border:none; border-radius:6px;
+      cursor:pointer; font-weight:600;
+    }
+
+    /* ── INCIDENT FORM ── */
+    .form-group { margin-bottom:12px; }
+    .form-group label { display:block; font-size:12px; color:var(--text2); margin-bottom:6px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width:100%; padding:10px 14px;
+      background:var(--input-bg); border:1px solid var(--border);
+      border-radius:8px; color:var(--text); font-size:14px;
+      outline:none; font-family:sans-serif; transition:border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:#2ecc71; }
+    .form-group select option { background:#0a1f14; }
+    body.light .form-group select option { background:#fff; color:#111; }
+
+    .primary-btn {
+      padding:10px 20px; background:#2ecc71; color:#0a1f14;
+      font-size:14px; font-weight:600; border:none;
+      border-radius:8px; cursor:pointer; transition:background 0.2s;
+    }
+    .primary-btn:hover { background:#27ae60; }
+
+    .feedback { font-size:13px; margin-top:8px; min-height:18px; }
+    .feedback.success { color:#2ecc71; }
+    .feedback.error   { color:#e74c3c; }
+
+    /* ── MAINTENANCE WINDOW ── */
+    .maintenance-card {
+      background:rgba(240,160,32,0.1); border:1px solid rgba(240,160,32,0.3);
+      border-radius:10px; padding:1rem; margin-bottom:10px;
+    }
+    .maintenance-title { font-size:14px; font-weight:500; color:#f0a020; margin-bottom:4px; }
+    .maintenance-meta  { font-size:12px; color:var(--text3); }
+
+    /* ── CHART ── */
+    .bar-chart { display:flex; align-items:flex-end; gap:8px; height:120px; margin-top:1rem; }
+    .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .bar-fill { width:100%; border-radius:4px 4px 0 0; background:#e74c3c; min-height:4px; transition:height 0.8s ease; }
+    .bar-label { font-size:11px; color:var(--text3); }
+    .bar-val   { font-size:10px; color:var(--text2); }
+
+    /* ── NO DATA ── */
+    .no-data {
+      text-align:center; padding:2.5rem;
+      color:var(--text3); font-size:14px;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align:center; font-size:12px; color:var(--text3);
+      padding:1.5rem; border-top:1px solid var(--border);
+      margin-top:2rem;
+    }
+    .footer a { color:#2ecc71; text-decoration:none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:768px) {
+      .nav-inner { flex-wrap:wrap; height:auto; padding:10px 1rem; }
+      .nav-links { order:3; width:100%; overflow-x:auto; flex-wrap:nowrap; }
+      .nav-link  { white-space:nowrap; font-size:12px; }
+      .container { padding:1rem; }
+      .hero { flex-direction:column; }
+      .summary-grid { grid-template-columns:repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body class="dark">
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="nav-brand">
+          <div class="brand-dot"></div>
+          FinCheck
+        </div>
+        <span class="b2b-tag">B2B</span>
+      </div>
+      <div class="nav-links">
+        <button class="nav-link active" onclick="showPage('overview',this)">Overview</button>
+        <button class="nav-link" onclick="showPage('complaints',this)">Complaints</button>
+        <button class="nav-link" onclick="showPage('incidents',this)">Incidents</button>
+        <button class="nav-link" onclick="showPage('maintenance',this)">Maintenance</button>
+        <button class="nav-link" onclick="showPage('analytics',this)">Analytics</button>
+        <button class="nav-link" onclick="showPage('settings',this)">Settings</button>
+      </div>
+      <div class="nav-right">
+        <div class="theme-toggle">
+          <button class="theme-btn active" onclick="setTheme('dark')">🌙</button>
+          <button class="theme-btn" onclick="setTheme('light')">☀️</button>
+        </div>
+        <span class="company-name" id="company-display"></span>
+        <button class="signout-btn" onclick="doSignOut()">Sign out</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <div id="page-overview" class="page active">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <p class="sub" id="company-greeting"></p>
+          <h1 id="service-title">Loading...</h1>
+        </div>
+        <div id="service-status-badge"></div>
+      </div>
+
+      <div class="summary-grid" id="overview-summary"></div>
+
+      <div class="card">
+        <h2>30-day uptime history</h2>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span class="sub" id="uptime-pct-label"></span>
+          <span class="sub" id="uptime-trend"></span>
+        </div>
+        <div class="uptime-bar-wrap">
+          <div class="uptime-bar-fill" id="uptime-bar-fill"></div>
+        </div>
+        <div class="uptime-30" id="uptime-30"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;">
+          <span style="font-size:11px;color:var(--text3)">30 days ago</span>
+          <span style="font-size:11px;color:var(--text3)">Today</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Recent community complaints</h2>
+        <p class="sub" style="margin-bottom:1rem">Latest reports submitted by users about your service</p>
+        <div id="recent-complaints-overview"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COMPLAINTS -->
+  <div id="page-complaints" class="page">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <h1>Community Complaints</h1>
+          <p class="sub">All user-submitted reports about your service — respond publicly</p>
+        </div>
+        <div id="complaints-count" style="font-size:13px;color:var(--text3);"></div>
+      </div>
+      <div id="complaints-list"></div>
+    </div>
+  </div>
+
+  <!-- INCIDENTS -->
+  <div id="page-incidents" class="page">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <h1>Incident Management</h1>
+          <p class="sub">Log and manage service incidents publicly</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1.5rem">
+        <h2 style="margin-bottom:1rem">Log new incident</h2>
+        <div class="form-group">
+          <label>Incident title</label>
+          <input type="text" id="inc-title" placeholder="e.g. Login service disruption"/>
+        </div>
+        <div class="form-group">
+          <label>Severity</label>
+          <select id="inc-severity">
+            <option value="degraded">Degraded — partial disruption</option>
+            <option value="outage">Outage — full service down</option>
+            <option value="resolved">Resolved — issue fixed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="inc-desc" rows="3" placeholder="Describe what happened and what's being done..."></textarea>
+        </div>
+        <button class="primary-btn" onclick="logIncident()">Publish incident</button>
+        <div class="feedback" id="inc-feedback"></div>
+      </div>
+
+      <h2 style="margin-bottom:1rem">Published incidents</h2>
+      <div id="incidents-list"></div>
+    </div>
+  </div>
+
+  <!-- MAINTENANCE -->
+  <div id="page-maintenance" class="page">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <h1>Maintenance Windows</h1>
+          <p class="sub">Schedule planned downtime so users know in advance</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1.5rem">
+        <h2 style="margin-bottom:1rem">Schedule maintenance</h2>
+        <div class="form-group">
+          <label>Maintenance title</label>
+          <input type="text" id="maint-title" placeholder="e.g. Scheduled system upgrade"/>
+        </div>
+        <div class="form-group">
+          <label>Start date & time</label>
+          <input type="datetime-local" id="maint-start"/>
+        </div>
+        <div class="form-group">
+          <label>End date & time</label>
+          <input type="datetime-local" id="maint-end"/>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="maint-desc" rows="2" placeholder="What will be affected during maintenance?"></textarea>
+        </div>
+        <button class="primary-btn" onclick="scheduleMaintenance()">Schedule maintenance</button>
+        <div class="feedback" id="maint-feedback"></div>
+      </div>
+
+      <h2 style="margin-bottom:1rem">Upcoming & past maintenance</h2>
+      <div id="maintenance-list"></div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div id="page-analytics" class="page">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <h1>Analytics</h1>
+          <p class="sub">Complaint trends and performance metrics for your service</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;">
+        <div class="card">
+          <h2>Complaint types breakdown</h2>
+          <div id="complaint-types-chart"></div>
+        </div>
+        <div class="card">
+          <h2>Monthly complaint volume</h2>
+          <div class="bar-chart" id="monthly-chart"></div>
+        </div>
+        <div class="card">
+          <h2>Top complaint issues</h2>
+          <div id="top-issues"></div>
+        </div>
+        <div class="card">
+          <h2>Service health score</h2>
+          <div id="health-score-display"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="page-settings" class="page">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <h1>Company Settings</h1>
+          <p class="sub">Manage your company profile and notification preferences</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-bottom:1rem">Company profile</h2>
+        <div id="profile-info"></div>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-bottom:1rem">Alert notifications</h2>
+        <div class="form-group">
+          <label>Alert email</label>
+          <input type="email" id="settings-email" placeholder="alerts@yourcompany.com"/>
+        </div>
+        <div class="form-group">
+          <label>Alert phone (SMS)</label>
+          <input type="tel" id="settings-phone" placeholder="+237 6XX XXX XXX"/>
+        </div>
+        <button class="primary-btn" onclick="saveSettings()">Save settings</button>
+        <div class="feedback" id="settings-feedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    FinCheck Cameroon B2B Portal · Built by Ngong Kwale Cedric ·
+    <a href="https://github.com/kwalecedric" target="_blank">GitHub</a>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getDatabase, ref, get, set, push, onValue, query, orderByChild, equalTo }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCdU-t2ItIjVFRQo65rzle8n2PrKZ_STmU",
+      authDomain: "cameroon-fintech-status.firebaseapp.com",
+      databaseURL: "https://cameroon-fintech-status-default-rtdb.firebaseio.com",
+      projectId: "cameroon-fintech-status",
+      storageBucket: "cameroon-fintech-status.firebasestorage.app",
+      messagingSenderId: "842559320219",
+      appId: "1:842559320219:web:6011def2b8d8031b6bd63e"
+    };
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const auth = getAuth(firebaseApp);
+    const db   = getDatabase(firebaseApp);
+
+    let currentUser    = null;
+    let companyData    = null;
+    let companyReports = [];
+
+    // Default service data
+    const defaultUptime = ["up","up","up","up","up","up","partial","partial","up","up","up","up","up","up","down","up","up","up","up","up","up","up","partial","up","up","up","up","up","up","up"];
+
+    // ── AUTH ──
+    onAuthStateChanged(auth, async user => {
+      if (!user) { window.location.href = "company-login.html"; return; }
+      currentUser = user;
+      const snap = await get(ref(db, `companies/${user.uid}`));
+      if (!snap.exists()) { window.location.href = "company-login.html"; return; }
+      companyData = snap.val();
+      initDashboard();
+    });
+
+    window.doSignOut = async function() {
+      await signOut(auth);
+      window.location.href = "company-login.html";
+    };
+
+    // ── THEME ──
+    window.setTheme = function(theme) {
+      document.body.className = theme;
+      document.querySelectorAll(".theme-btn").forEach((btn,i) => {
+        btn.classList.toggle("active", (i===0&&theme==="dark")||(i===1&&theme==="light"));
+      });
+      if (currentUser && companyData) {
+        set(ref(db,`companies/${currentUser.uid}/theme`), theme);
+      }
+    };
+
+    // ── PAGES ──
+    window.showPage = function(name, btn) {
+      document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+      document.querySelectorAll(".nav-link").forEach(l=>l.classList.remove("active"));
+      document.getElementById("page-"+name).classList.add("active");
+      if (btn) btn.classList.add("active");
+      if (name==="complaints")  renderComplaints();
+      if (name==="incidents")   renderIncidents();
+      if (name==="maintenance") renderMaintenance();
+      if (name==="analytics")   renderAnalytics();
+      if (name==="settings")    renderSettings();
+    };
+
+    // ── INIT ──
+    function initDashboard() {
+      const theme = companyData.theme || "dark";
+      document.body.className = theme;
+      document.querySelectorAll(".theme-btn").forEach((btn,i) => {
+        btn.classList.toggle("active", (i===0&&theme==="dark")||(i===1&&theme==="light"));
+      });
+
+      document.getElementById("company-display").textContent = companyData.company;
+      document.getElementById("company-greeting").textContent = `${companyData.company} · ${companyData.service}`;
+      document.getElementById("service-title").textContent = companyData.service;
+
+      loadServiceData();
+      loadReports();
+    }
+
+    // ── SERVICE DATA ──
+    function loadServiceData() {
+      const uptime   = defaultUptime;
+      const upDays   = uptime.filter(d=>d==="up").length;
+      const partDays = uptime.filter(d=>d==="partial").length;
+      const downDays = uptime.filter(d=>d==="down").length;
+      const pct      = ((upDays+partDays*0.5)/uptime.length*100).toFixed(2);
+      const status   = downDays>0?"outage":partDays>2?"degraded":"operational";
+      const color    = pct>=99?"#2ecc71":pct>=95?"#f0a020":"#e74c3c";
+
+      // Status badge
+      const badge = document.getElementById("service-status-badge");
+      const statusLabel = status==="operational"?"Operational":status==="degraded"?"Degraded":"Outage";
+      badge.innerHTML = `
+        <div class="status-badge ${status}">
+          <div class="status-dot ${status}"></div>
+          ${statusLabel}
+        </div>`;
+
+      // Summary
+      document.getElementById("overview-summary").innerHTML = `
+        <div class="summary-card"><p class="s-label">Uptime</p><p class="s-num ok">${pct}%</p></div>
+        <div class="summary-card"><p class="s-label">Days up</p><p class="s-num ok">${upDays}</p></div>
+        <div class="summary-card"><p class="s-label">Partial days</p><p class="s-num warn">${partDays}</p></div>
+        <div class="summary-card"><p class="s-label">Days down</p><p class="s-num bad">${downDays}</p></div>
+      `;
+
+      // Uptime bar
+      document.getElementById("uptime-pct-label").textContent = `${pct}% uptime over 30 days`;
+      document.getElementById("uptime-trend").textContent = pct>=99?"Excellent performance":pct>=95?"Good performance":"Needs improvement";
+      document.getElementById("uptime-bar-fill").style.cssText = `width:${pct}%;background:${color}`;
+      document.getElementById("uptime-30").innerHTML = uptime.map(d=>`<div class="uptime-block ${d}"></div>`).join("");
+    }
+
+    // ── LOAD REPORTS ──
+    function loadReports() {
+      const reportsRef = ref(db, "reports");
+      onValue(reportsRef, snap => {
+        const data = snap.val();
+        if (!data) { companyReports = []; }
+        else {
+          companyReports = Object.entries(data)
+            .map(([id,val])=>({id,...val}))
+            .filter(r => r.service === companyData.service)
+            .sort((a,b)=>b.timestamp-a.timestamp);
+        }
+        renderOverviewComplaints();
+      });
+    }
+
+    function renderOverviewComplaints() {
+      const el = document.getElementById("recent-complaints-overview");
+      if (!el) return;
+      if (!companyReports.length) {
+        el.innerHTML=`<div class="no-data">No complaints yet for ${companyData.service}.</div>`; return;
+      }
+      el.innerHTML = companyReports.slice(0,3).map(r=>`
+        <div class="complaint-card" style="animation-delay:0s">
+          <div class="complaint-top">
+            <span class="complaint-type">${r.type}</span>
+            <span class="complaint-time">${timeAgo(r.timestamp)}</span>
+          </div>
+          <p class="complaint-desc">${r.desc}</p>
+        </div>`).join("");
+    }
+
+    function renderComplaints() {
+      const list    = document.getElementById("complaints-list");
+      const countEl = document.getElementById("complaints-count");
+      if (!list) return;
+      if (countEl) countEl.textContent = `${companyReports.length} total report${companyReports.length!==1?"s":""}`;
+      if (!companyReports.length) {
+        list.innerHTML=`<div class="no-data">No complaints found for ${companyData.service}.</div>`; return;
+      }
+      list.innerHTML = companyReports.map((r,i) => `
+        <div class="complaint-card" style="animation-delay:${i*0.04}s">
+          <div class="complaint-top">
+            <span class="complaint-type">${r.type}</span>
+            <span class="complaint-time">${timeAgo(r.timestamp)}</span>
+          </div>
+          <p class="complaint-desc">${r.desc}</p>
+          <p class="complaint-user">Reported by community member</p>
+          <button onclick="toggleRespond('${r.id}')"
+            style="font-size:12px;padding:4px 12px;margin-top:8px;border:1px solid rgba(46,204,113,0.3);
+            background:transparent;color:#2ecc71;border-radius:6px;cursor:pointer;">
+            Respond publicly
+          </button>
+          <div class="respond-form" id="respond-${r.id}">
+            <textarea rows="2" placeholder="Write a public response..." id="respond-text-${r.id}"></textarea>
+            <button class="respond-btn" onclick="submitResponse('${r.id}')">Post response</button>
+          </div>
+          ${r.response ? `
+            <div style="margin-top:8px;padding:8px 12px;background:rgba(46,204,113,0.08);
+              border:1px solid rgba(46,204,113,0.2);border-radius:6px;">
+              <p style="font-size:11px;color:#2ecc71;margin-bottom:3px;">Official response from ${companyData.company}</p>
+              <p style="font-size:13px;color:var(--text2);">${r.response}</p>
+            </div>` : ""}
+        </div>`).join("");
+    }
+
+    window.toggleRespond = function(id) {
+      const form = document.getElementById("respond-"+id);
+      if (form) form.style.display = form.style.display==="block" ? "none" : "block";
+    };
+
+    window.submitResponse = async function(reportId) {
+      const text = document.getElementById(`respond-text-${reportId}`)?.value.trim();
+      if (!text) return;
+      await set(ref(db, `reports/${reportId}/response`), text);
+      await set(ref(db, `reports/${reportId}/respondedBy`), companyData.company);
+      renderComplaints();
+    };
+
+    // ── INCIDENTS ──
+    function renderIncidents() {
+      const list = document.getElementById("incidents-list");
+      if (!list) return;
+      const incRef = query(ref(db, "companyIncidents"), orderByChild("company"),
+        equalTo(companyData.company));
+      // For simplicity load all and filter
+      get(ref(db,"companyIncidents")).then(snap => {
+        const data = snap.val();
+        if (!data) { list.innerHTML=`<div class="no-data">No incidents logged yet.</div>`; return; }
+        const incidents = Object.entries(data)
+          .map(([id,val])=>({id,...val}))
+          .filter(i=>i.company===companyData.company)
+          .sort((a,b)=>b.timestamp-a.timestamp);
+        if (!incidents.length) { list.innerHTML=`<div class="no-data">No incidents logged yet.</div>`; return; }
+        const colors = { outage:"#e74c3c", degraded:"#f0a020", resolved:"#2ecc71" };
+        list.innerHTML = incidents.map(inc=>`
+          <div style="background:var(--bg3);border:1px solid var(--border);
+            border-left:3px solid ${colors[inc.severity]||"#888"};
+            border-radius:8px;padding:1rem 1.25rem;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <p style="font-size:14px;font-weight:500;color:var(--text);">${inc.title}</p>
+              <span style="font-size:12px;color:${colors[inc.severity]};text-transform:capitalize;">${inc.severity}</span>
+            </div>
+            <p style="font-size:12px;color:var(--text3);margin-bottom:4px;">${new Date(inc.timestamp).toLocaleString("en-GB")}</p>
+            <p style="font-size:13px;color:var(--text2);">${inc.desc}</p>
+          </div>`).join("");
+      });
+    }
+
+    window.logIncident = async function() {
+      const title    = document.getElementById("inc-title").value.trim();
+      const severity = document.getElementById("inc-severity").value;
+      const desc     = document.getElementById("inc-desc").value.trim();
+      const fb       = document.getElementById("inc-feedback");
+      if (!title||!desc) { fb.textContent="Please fill in all fields."; fb.className="feedback error"; return; }
+      await push(ref(db,"companyIncidents"), {
+        title, severity, desc,
+        company: companyData.company,
+        service: companyData.service,
+        timestamp: Date.now()
+      });
+      document.getElementById("inc-title").value="";
+      document.getElementById("inc-desc").value="";
+      fb.textContent="✓ Incident published."; fb.className="feedback success";
+      setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; renderIncidents(); },2000);
+    };
+
+    // ── MAINTENANCE ──
+    function renderMaintenance() {
+      const list = document.getElementById("maintenance-list");
+      if (!list) return;
+      get(ref(db,"maintenanceWindows")).then(snap => {
+        const data = snap.val();
+        if (!data) { list.innerHTML=`<div class="no-data">No maintenance scheduled.</div>`; return; }
+        const windows = Object.entries(data)
+          .map(([id,val])=>({id,...val}))
+          .filter(w=>w.company===companyData.company)
+          .sort((a,b)=>a.start-b.start);
+        if (!windows.length) { list.innerHTML=`<div class="no-data">No maintenance scheduled.</div>`; return; }
+        list.innerHTML = windows.map(w=>`
+          <div class="maintenance-card">
+            <p class="maintenance-title">${w.title}</p>
+            <p class="maintenance-meta">
+              ${new Date(w.start).toLocaleString("en-GB")} →
+              ${new Date(w.end).toLocaleString("en-GB")}
+            </p>
+            <p style="font-size:13px;color:var(--text2);margin-top:6px;">${w.desc}</p>
+          </div>`).join("");
+      });
+    }
+
+    window.scheduleMaintenance = async function() {
+      const title = document.getElementById("maint-title").value.trim();
+      const start = new Date(document.getElementById("maint-start").value).getTime();
+      const end   = new Date(document.getElementById("maint-end").value).getTime();
+      const desc  = document.getElementById("maint-desc").value.trim();
+      const fb    = document.getElementById("maint-feedback");
+      if (!title||!start||!end||!desc) { fb.textContent="Please fill in all fields."; fb.className="feedback error"; return; }
+      if (end<=start) { fb.textContent="End time must be after start time."; fb.className="feedback error"; return; }
+      await push(ref(db,"maintenanceWindows"), {
+        title, start, end, desc,
+        company:companyData.company, service:companyData.service,
+        createdAt:Date.now()
+      });
+      document.getElementById("maint-title").value="";
+      document.getElementById("maint-start").value="";
+      document.getElementById("maint-end").value="";
+      document.getElementById("maint-desc").value="";
+      fb.textContent="✓ Maintenance scheduled."; fb.className="feedback success";
+      setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; renderMaintenance(); },2000);
+    };
+
+    // ── ANALYTICS ──
+    function renderAnalytics() {
+      if (!companyReports.length) {
+        document.getElementById("complaint-types-chart").innerHTML=`<div class="no-data">No data yet.</div>`;
+        document.getElementById("monthly-chart").innerHTML=`<div class="no-data">No data yet.</div>`;
+        document.getElementById("top-issues").innerHTML=`<div class="no-data">No data yet.</div>`;
+        document.getElementById("health-score-display").innerHTML=`<div class="no-data">No data yet.</div>`;
+        return;
+      }
+
+      // Complaint types
+      const typeCounts = {};
+      companyReports.forEach(r=>{ typeCounts[r.type]=(typeCounts[r.type]||0)+1; });
+      const maxType = Math.max(...Object.values(typeCounts));
+      document.getElementById("complaint-types-chart").innerHTML = Object.entries(typeCounts)
+        .sort((a,b)=>b[1]-a[1])
+        .map(([type,count])=>`
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div style="font-size:12px;color:var(--text2);width:160px;flex-shrink:0;">${type}</div>
+            <div style="flex:1;background:var(--bg2);border-radius:99px;height:8px;overflow:hidden;">
+              <div style="width:${(count/maxType)*100}%;height:100%;border-radius:99px;background:#e74c3c;"></div>
+            </div>
+            <div style="font-size:12px;color:var(--text3);width:24px;text-align:right;">${count}</div>
+          </div>`).join("");
+
+      // Monthly chart (last 6 months simulated)
+      const months = ["Nov","Dec","Jan","Feb","Mar","Apr"];
+      const vals   = [2,1,3,2,4,companyReports.length];
+      const maxVal = Math.max(...vals);
+      document.getElementById("monthly-chart").innerHTML = months.map((m,i)=>`
+        <div class="bar-col">
+          <div class="bar-val">${vals[i]}</div>
+          <div class="bar-fill" style="height:${(vals[i]/maxVal)*80}px"></div>
+          <div class="bar-label">${m}</div>
+        </div>`).join("");
+
+      // Top issues
+      const sorted = Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      document.getElementById("top-issues").innerHTML = sorted.map(([type,count],i)=>`
+        <div style="display:flex;justify-content:space-between;padding:8px 0;
+          border-bottom:1px solid var(--border);">
+          <span style="font-size:13px;color:var(--text2);">${i+1}. ${type}</span>
+          <span style="font-size:13px;font-weight:500;color:var(--text);">${count} report${count!==1?"s":""}</span>
+        </div>`).join("");
+
+      // Health score
+      const total     = companyReports.length;
+      const score     = Math.max(0, 100 - total*5);
+      const scoreColor= score>=80?"#2ecc71":score>=60?"#f0a020":"#e74c3c";
+      const scoreLabel= score>=80?"Good":"Fair";
+      document.getElementById("health-score-display").innerHTML = `
+        <div style="text-align:center;padding:1rem;">
+          <div style="font-size:48px;font-weight:500;color:${scoreColor};">${score}</div>
+          <div style="font-size:14px;color:var(--text2);margin:4px 0 12px;">${scoreLabel} — based on ${total} community report${total!==1?"s":""}</div>
+          <div style="background:var(--bg2);border-radius:99px;height:10px;overflow:hidden;">
+            <div style="width:${score}%;height:100%;border-radius:99px;background:${scoreColor};transition:width 1s;"></div>
+          </div>
+        </div>`;
+    }
+
+    // ── SETTINGS ──
+    function renderSettings() {
+      const el = document.getElementById("profile-info");
+      if (!el) return;
+      el.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:1rem;">
+          <div class="summary-card"><p class="s-label">Company</p><p style="font-size:15px;font-weight:500;color:var(--text);">${companyData.company}</p></div>
+          <div class="summary-card"><p class="s-label">Service</p><p style="font-size:15px;font-weight:500;color:var(--text);">${companyData.service}</p></div>
+          <div class="summary-card"><p class="s-label">Licence key</p><p style="font-size:13px;font-family:monospace;color:var(--text2);">${companyData.licenceKey}</p></div>
+          <div class="summary-card"><p class="s-label">Member since</p><p style="font-size:13px;color:var(--text2);">${new Date(companyData.registeredAt).toLocaleDateString("en-GB")}</p></div>
+        </div>`;
+
+      const emailEl = document.getElementById("settings-email");
+      const phoneEl = document.getElementById("settings-phone");
+      if (emailEl && companyData.alertEmail) emailEl.value = companyData.alertEmail;
+      if (phoneEl && companyData.alertPhone) phoneEl.value = companyData.alertPhone;
+    }
+
+    window.saveSettings = async function() {
+      const email = document.getElementById("settings-email").value.trim();
+      const phone = document.getElementById("settings-phone").value.trim();
+      const fb    = document.getElementById("settings-feedback");
+      await set(ref(db,`companies/${currentUser.uid}/alertEmail`), email);
+      await set(ref(db,`companies/${currentUser.uid}/alertPhone`), phone);
+      fb.textContent="✓ Settings saved."; fb.className="feedback success";
+      setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; },3000);
+    };
+
+    // ── HELPERS ──
+    function timeAgo(ts) {
+      const d = Math.floor((Date.now()-ts)/1000);
+      if (d<60)   return `${d}s ago`;
+      if (d<3600) return `${Math.floor(d/60)}m ago`;
+      return `${Math.floor(d/3600)}h ago`;
+    }
+  </script>
+</body>
+</html>

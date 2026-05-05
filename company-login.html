@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinCheck · Company Portal</title>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0a1f14;
+      position: relative;
+      overflow: hidden;
+    }
+    body::before {
+      content:"";
+      position:fixed; inset:0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(26,122,74,0.35) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(0,80,160,0.25) 0%, transparent 60%),
+        #0a1f14;
+      animation: bgShift 12s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift {
+      0%   { filter:hue-rotate(0deg); }
+      100% { filter:hue-rotate(20deg); }
+    }
+    .card {
+      position: relative;
+      z-index: 2;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      margin: 1rem;
+      backdrop-filter: blur(12px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .brand-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #2ecc71;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(46,204,113,0.6); }
+      50%     { box-shadow: 0 0 0 6px rgba(46,204,113,0); }
+    }
+    .brand-name { font-size: 18px; font-weight: 600; color: #fff; }
+    .brand-tag  { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 2rem; }
+    .b2b-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      background: rgba(46,204,113,0.15);
+      color: #6ee09a;
+      border: 1px solid rgba(46,204,113,0.3);
+      border-radius: 99px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.05em;
+    }
+    h1 { font-size: 22px; font-weight: 500; color: #fff; margin-bottom: 6px; }
+    .sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 1.75rem; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 12px; color: rgba(255,255,255,0.55); margin-bottom: 6px; }
+    input {
+      width: 100%;
+      padding: 11px 14px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: sans-serif;
+    }
+    input::placeholder { color: rgba(255,255,255,0.3); }
+    input:focus { border-color: #2ecc71; }
+    .key-input {
+      font-family: monospace;
+      letter-spacing: 0.1em;
+      font-size: 13px;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: #2ecc71;
+      color: #0a1f14;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background 0.2s;
+    }
+    .login-btn:hover { background: #27ae60; }
+    .error {
+      font-size: 13px;
+      color: #ff8a8a;
+      margin-top: 10px;
+      min-height: 18px;
+      text-align: center;
+    }
+    .divider {
+      text-align: center;
+      color: rgba(255,255,255,0.3);
+      font-size: 12px;
+      margin: 16px 0;
+      position: relative;
+    }
+    .divider::before, .divider::after {
+      content:"";
+      position: absolute;
+      top: 50%; width: 42%; height: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+    .divider::before { left: 0; }
+    .divider::after  { right: 0; }
+    .user-link {
+      display: block;
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin-top: 1rem;
+    }
+    .user-link span { color: #6ee09a; }
+    .user-link:hover span { text-decoration: underline; }
+    .key-note {
+      font-size: 12px;
+      color: rgba(255,255,255,0.35);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 1.5rem;
+    }
+    .tab {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: rgba(255,255,255,0.55);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab.active { background: rgba(255,255,255,0.15); color: #fff; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <span class="brand-name">FinCheck Cameroon</span>
+    </div>
+    <p class="brand-tag">Fintech Monitoring Platform</p>
+    <div class="b2b-badge">COMPANY PORTAL</div>
+
+    <h1>Company access</h1>
+    <p class="sub">Sign in or register your company to access your monitoring dashboard</p>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Sign in</button>
+      <button class="tab" onclick="switchTab('register')">Register company</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="tab-login">
+      <div class="form-group">
+        <label>Company email</label>
+        <input type="email" id="login-email" placeholder="company@email.com"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••"/>
+      </div>
+      <div class="form-group">
+        <label>Licence key</label>
+        <input type="text" id="login-key" class="key-input" placeholder="FINCHK-XXXX-XXXX-XXXX"/>
+        <p class="key-note">Your licence key was provided when you subscribed to FinCheck B2B.</p>
+      </div>
+      <button class="login-btn" onclick="companyLogin()">Sign in to company portal</button>
+      <div class="error" id="login-error"></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="tab-register" style="display:none">
+      <div class="form-group">
+        <label>Company name</label>
+        <input type="text" id="reg-company" placeholder="e.g. Afriland First Bank"/>
+      </div>
+      <div class="form-group">
+        <label>Service you represent</label>
+        <select id="reg-service" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:14px;outline:none;">
+          <option value="">Select your service...</option>
+          <option>Sara Money</option>
+          <option>MTN Mobile Money</option>
+          <option>Orange Money</option>
+          <option>Express Union</option>
+          <option>CCA Bank</option>
+          <option>Yoomee Mobile</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Company email</label>
+        <input type="email" id="reg-email" placeholder="company@email.com"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="reg-password" placeholder="Min 6 characters"/>
+      </div>
+      <div class="form-group">
+        <label>Licence key</label>
+        <input type="text" id="reg-key" class="key-input" placeholder="FINCHK-XXXX-XXXX-XXXX"/>
+        <p class="key-note">Contact us at github.com/kwalecedric to obtain a licence key.</p>
+      </div>
+      <button class="login-btn" onclick="companyRegister()">Register company</button>
+      <div class="error" id="reg-error"></div>
+    </div>
+
+    <a href="index.html" class="user-link">Not a company? <span>Go to user portal →</span></a>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getDatabase, ref, get, set }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCdU-t2ItIjVFRQo65rzle8n2PrKZ_STmU",
+      authDomain: "cameroon-fintech-status.firebaseapp.com",
+      databaseURL: "https://cameroon-fintech-status-default-rtdb.firebaseio.com",
+      projectId: "cameroon-fintech-status",
+      storageBucket: "cameroon-fintech-status.firebasestorage.app",
+      messagingSenderId: "842559320219",
+      appId: "1:842559320219:web:6011def2b8d8031b6bd63e"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getDatabase(app);
+
+    // Valid licence keys — stored in Firebase
+    // You add new keys here in Firebase under /licenceKeys/
+    async function validateKey(key) {
+      try {
+        const snap = await get(ref(db, `licenceKeys/${key.replace(/-/g,"_")}`));
+        return snap.exists() && snap.val().active === true;
+      } catch(e) { return false; }
+    }
+
+    onAuthStateChanged(auth, async user => {
+      if (user) {
+        const snap = await get(ref(db, `companies/${user.uid}`));
+        if (snap.exists()) window.location.href = "company.html";
+      }
+    });
+
+    window.switchTab = function(tab) {
+      document.getElementById("tab-login").style.display    = tab==="login"    ? "block" : "none";
+      document.getElementById("tab-register").style.display = tab==="register" ? "block" : "none";
+      document.querySelectorAll(".tab").forEach((b,i) => {
+        b.classList.toggle("active", (i===0&&tab==="login")||(i===1&&tab==="register"));
+      });
+    };
+
+    window.companyLogin = async function() {
+      const email = document.getElementById("login-email").value.trim();
+      const pass  = document.getElementById("login-password").value;
+      const key   = document.getElementById("login-key").value.trim().toUpperCase();
+      const err   = document.getElementById("login-error");
+
+      if (!key) { err.textContent = "Please enter your licence key."; return; }
+      const valid = await validateKey(key);
+      if (!valid) { err.textContent = "Invalid or expired licence key."; return; }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        window.location.href = "company.html";
+      } catch(e) {
+        err.textContent = friendlyError(e.code);
+      }
+    };
+
+    window.companyRegister = async function() {
+      const company = document.getElementById("reg-company").value.trim();
+      const service = document.getElementById("reg-service").value;
+      const email   = document.getElementById("reg-email").value.trim();
+      const pass    = document.getElementById("reg-password").value;
+      const key     = document.getElementById("reg-key").value.trim().toUpperCase();
+      const err     = document.getElementById("reg-error");
+
+      if (!company) { err.textContent = "Please enter your company name."; return; }
+      if (!service)  { err.textContent = "Please select your service."; return; }
+      if (!key)      { err.textContent = "Please enter your licence key."; return; }
+
+      const valid = await validateKey(key);
+      if (!valid) { err.textContent = "Invalid or expired licence key. Contact us to get one."; return; }
+
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await updateProfile(cred.user, { displayName: company });
+        await set(ref(db, `companies/${cred.user.uid}`), {
+          company, service, email,
+          licenceKey: key,
+          theme: "dark",
+          registeredAt: Date.now()
+        });
+        window.location.href = "company.html";
+      } catch(e) {
+        err.textContent = friendlyError(e.code);
+      }
+    };
+
+    function friendlyError(code) {
+      if (code==="auth/user-not-found")     return "No account found with that email.";
+      if (code==="auth/wrong-password")     return "Incorrect password.";
+      if (code==="auth/email-already-in-use") return "An account with this email already exists.";
+      if (code==="auth/weak-password")      return "Password must be at least 6 characters.";
+      if (code==="auth/invalid-email")      return "Please enter a valid email address.";
+      return "Something went wrong. Please try again.";
+    }
+  </script>
+</body>
+</html>
