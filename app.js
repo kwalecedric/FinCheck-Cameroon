@@ -1458,21 +1458,50 @@ window.downloadPDF = async function() {
     fb.className = "feedback error";
   }
 };
+// ── NOTIFICATIONS FROM COMPANIES ──────────────────────
+function startNotifications() {
+  const list = document.getElementById("notifications-list");
+  if (!list) return;
 
-  <div id="page-notifications" class="page">
-    <div class="container">
-      <div class="hero">
-        <div>
-          <h1 data-i18n="notif_title">Official Notifications</h1>
-          <p class="subtitle" data-i18n="notif_sub">Announcements from fintech companies on FinCheck</p>
+  onValue(ref(db, "announcements"), snap => {
+    const data = snap.val();
+    if (!data) {
+      list.innerHTML = `<div class="no-logs">No official announcements yet.</div>`;
+      return;
+    }
+    const items = Object.entries(data)
+      .map(([id,v]) => ({id,...v}))
+      .sort((a,b) => b.timestamp - a.timestamp);
+
+    const colors = {
+      outage:"#e74c3c", degraded:"#f0a020",
+      resolved:"#2ecc71", maintenance:"#3498db"
+    };
+
+    list.innerHTML = items.map((a,i) => `
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+        border-left:4px solid ${colors[a.type]||"#888"};border-radius:10px;
+        padding:1rem 1.25rem;margin-bottom:10px;
+        opacity:0;animation:slideUp 0.3s ${i*0.04}s forwards;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            ${a.logoUrl?`<img src="${a.logoUrl}" style="width:24px;height:24px;border-radius:6px;object-fit:cover;"/>`:""}
+            <p style="font-size:14px;font-weight:500;color:#fff;">${a.title}</p>
+          </div>
+          <span style="font-size:12px;color:rgba(255,255,255,0.4);flex-shrink:0;">${timeAgo(a.timestamp)}</span>
         </div>
-        <div class="log-live-badge">
-          <span class="log-dot"></span> LIVE
+        <p style="font-size:13px;color:rgba(255,255,255,0.65);margin-bottom:8px;">${a.desc}</p>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid;
+            background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);">
+            ${a.service}
+          </span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.4);">by ${a.company}</span>
+          ${a.eta?`<span style="font-size:11px;color:rgba(255,255,255,0.4);">ETA: ${new Date(a.eta).toLocaleString("en-GB")}</span>`:""}
         </div>
-      </div>
-      <div id="notifications-list"></div>
-    </div>
-  </div>
+      </div>`).join("");
+  });
+}
 
 function timeAgo(ts) {
   const d = Math.floor((Date.now()-ts)/1000);
