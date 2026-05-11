@@ -1502,7 +1502,6 @@ function startNotifications() {
       </div>`).join("");
   });
 }
-
 function timeAgo(ts) {
   const d = Math.floor((Date.now()-ts)/1000);
   if (d<60)   return currentLang==="fr"?`${d}s`:`${d}s ago`;
