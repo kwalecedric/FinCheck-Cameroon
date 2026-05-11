@@ -264,6 +264,9 @@ const translations = {
     reports_generate:  "Generate PDF Report",
     reports_preview:   "Report preview",
     reports_download:  "Download PDF",
+    notif_title: "Official Notifications",
+    notif_sub:   "Announcements from fintech companies on FinCheck",
+
   },
   fr: {
     brand:"FinCheck Cameroun", nav_overview:"Aperçu", nav_monitoring:"Surveillance",
@@ -354,6 +357,8 @@ const translations = {
     reports_generate:  "Générer le rapport PDF",
     reports_preview:   "Aperçu du rapport",
     reports_download:  "Télécharger le PDF",
+    notif_title: "Notifications officielles",
+    notif_sub:   "Annonces des entreprises fintech sur FinCheck",
   }
 };
 
@@ -447,6 +452,7 @@ window.showPage = function(name, link) {
   if (name === "services") renderManageServices();
   if (name === "alerts")  renderAlertToggles();
   if (name === "reports") renderReportServiceChecks();
+  if (name === "notifications") startNotifications();
 };
 
 // ── CLOCK & COUNTDOWN ─────────────────────────────────
@@ -1452,6 +1458,22 @@ window.downloadPDF = async function() {
     fb.className = "feedback error";
   }
 };
+
+// NOTIFICATIONS PAGE 
+  <div id="page-notifications" class="page">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <h1 data-i18n="notif_title">Official Notifications</h1>
+          <p class="subtitle" data-i18n="notif_sub">Announcements from fintech companies on FinCheck</p>
+        </div>
+        <div class="log-live-badge">
+          <span class="log-dot"></span> LIVE
+        </div>
+      </div>
+      <div id="notifications-list"></div>
+    </div>
+  </div>
 
 function timeAgo(ts) {
   const d = Math.floor((Date.now()-ts)/1000);

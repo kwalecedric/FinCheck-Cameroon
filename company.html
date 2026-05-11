@@ -7,32 +7,19 @@
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-    /* ── THEME VARIABLES ── */
     body.dark {
-      --bg: #0a1f14;
-      --bg2: rgba(255,255,255,0.07);
-      --bg3: rgba(255,255,255,0.04);
-      --border: rgba(255,255,255,0.12);
-      --text: #fff;
-      --text2: rgba(255,255,255,0.6);
-      --text3: rgba(255,255,255,0.35);
-      --nav-bg: rgba(255,255,255,0.07);
-      --card-bg: rgba(255,255,255,0.07);
-      --input-bg: rgba(255,255,255,0.07);
-      --overlay: rgba(10,31,20,0.55);
+      --bg:#0a1f14; --bg2:rgba(255,255,255,0.07); --bg3:rgba(255,255,255,0.04);
+      --border:rgba(255,255,255,0.12); --text:#fff; --text2:rgba(255,255,255,0.6);
+      --text3:rgba(255,255,255,0.35); --nav-bg:rgba(255,255,255,0.07);
+      --card-bg:rgba(255,255,255,0.07); --input-bg:rgba(255,255,255,0.07);
+      --select-bg:#0f2a1a; --shadow:none;
     }
     body.light {
-      --bg: #f0f4f0;
-      --bg2: #ffffff;
-      --bg3: #f8fbf8;
-      --border: #e0e8e0;
-      --text: #111;
-      --text2: #555;
-      --text3: #999;
-      --nav-bg: #ffffff;
-      --card-bg: #ffffff;
-      --input-bg: #f8f8f8;
-      --overlay: transparent;
+      --bg:#f0f4f0; --bg2:#ffffff; --bg3:#f8fbf8;
+      --border:#e0e8e0; --text:#111; --text2:#555;
+      --text3:#999; --nav-bg:#ffffff; --card-bg:#ffffff;
+      --input-bg:#f8f8f8; --select-bg:#ffffff;
+      --shadow:0 2px 12px rgba(0,0,0,0.06);
     }
 
     body {
@@ -42,10 +29,8 @@
       min-height: 100vh;
       transition: background 0.3s, color 0.3s;
     }
-
     body.dark::before {
-      content:"";
-      position:fixed; inset:0; z-index:0;
+      content:""; position:fixed; inset:0; z-index:0;
       background:
         radial-gradient(ellipse at 20% 20%, rgba(26,122,74,0.3) 0%, transparent 60%),
         radial-gradient(ellipse at 80% 80%, rgba(0,80,160,0.2) 0%, transparent 60%),
@@ -53,94 +38,76 @@
     }
     body.dark::after {
       content:""; position:fixed; inset:0; z-index:1;
-      background: var(--overlay); pointer-events:none;
+      background:rgba(10,31,20,0.5); pointer-events:none;
     }
+    .navbar,.page,.footer { position:relative; z-index:2; }
 
-    .navbar, .page, .footer { position:relative; z-index:2; }
-
-    /* ── NAV ── */
+    /* NAV */
     .navbar {
-      background: var(--nav-bg);
-      border-bottom: 1px solid var(--border);
-      position: sticky; top:0; z-index:100;
-      backdrop-filter: blur(12px);
+      background:var(--nav-bg); border-bottom:1px solid var(--border);
+      position:sticky; top:0; z-index:100; backdrop-filter:blur(12px);
     }
     .nav-inner {
-      max-width: 1100px; margin:0 auto;
-      padding: 0 1.5rem;
-      display: flex; align-items:center;
-      justify-content:space-between; height:56px;
-      gap: 12px;
+      max-width:1200px; margin:0 auto; padding:0 1.5rem;
+      display:flex; align-items:center; justify-content:space-between;
+      height:58px; gap:12px;
     }
-    .nav-brand {
-      font-size:15px; font-weight:500;
-      display:flex; align-items:center; gap:8px;
-      color: var(--text);
+    .nav-brand { display:flex; align-items:center; gap:10px; }
+    .brand-logo {
+      width:32px; height:32px; border-radius:8px;
+      object-fit:cover; display:none;
     }
+    .brand-logo.visible { display:block; }
+    .brand-name { font-size:15px; font-weight:600; color:var(--text); }
     .brand-dot {
       width:10px; height:10px; border-radius:50%;
-      background:#2ecc71; animation:pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%,100% { box-shadow:0 0 0 0 rgba(46,204,113,0.6); }
-      50%     { box-shadow:0 0 0 6px rgba(46,204,113,0); }
+      background:#2ecc71; animation:pulse 2s infinite; flex-shrink:0;
     }
     .b2b-tag {
-      font-size:10px; font-weight:600;
-      padding:2px 8px; border-radius:99px;
-      background:rgba(46,204,113,0.15);
+      font-size:10px; font-weight:600; padding:2px 8px;
+      border-radius:99px; background:rgba(46,204,113,0.15);
       color:#2ecc71; border:1px solid rgba(46,204,113,0.3);
-      letter-spacing:0.05em;
     }
+    .role-tag {
+      font-size:10px; font-weight:600; padding:2px 8px;
+      border-radius:99px; letter-spacing:0.05em;
+    }
+    .role-tag.admin      { background:rgba(231,76,60,0.15);  color:#e74c3c; border:1px solid rgba(231,76,60,0.3); }
+    .role-tag.technician { background:rgba(52,152,219,0.15); color:#3498db; border:1px solid rgba(52,152,219,0.3); }
+    .role-tag.viewer     { background:rgba(150,150,150,0.15);color:#aaa;    border:1px solid rgba(150,150,150,0.3); }
+
     .nav-links { display:flex; gap:2px; flex-wrap:wrap; }
     .nav-link {
-      text-decoration:none; font-size:13px;
-      color:var(--text2); padding:6px 10px;
-      border-radius:8px; transition:all 0.2s; cursor:pointer;
-      background:none; border:none; font-family:sans-serif;
+      text-decoration:none; font-size:13px; color:var(--text2);
+      padding:6px 10px; border-radius:8px; transition:all 0.2s;
+      cursor:pointer; background:none; border:none; font-family:sans-serif;
     }
     .nav-link:hover  { background:rgba(46,204,113,0.1); color:var(--text); }
     .nav-link.active { background:rgba(46,204,113,0.15); color:#2ecc71; font-weight:500; }
 
-    .nav-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .nav-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
     .company-name { font-size:13px; color:var(--text2); white-space:nowrap; }
 
-    /* Theme toggle */
     .theme-toggle {
-      display:flex; gap:2px;
-      background:var(--bg2); border:1px solid var(--border);
-      border-radius:8px; padding:3px;
+      display:flex; gap:2px; background:var(--bg2);
+      border:1px solid var(--border); border-radius:8px; padding:3px;
     }
     .theme-btn {
       padding:4px 10px; border-radius:6px; border:none;
-      background:transparent; color:var(--text2);
-      font-size:12px; cursor:pointer; transition:all 0.2s;
+      background:transparent; color:var(--text2); font-size:12px; cursor:pointer;
     }
     .theme-btn.active { background:rgba(46,204,113,0.2); color:#2ecc71; }
     .signout-btn {
-      font-size:12px; padding:5px 12px;
-      border:1px solid var(--border);
-      background:transparent; color:var(--text2);
-      border-radius:6px; cursor:pointer; transition:all 0.2s;
+      font-size:12px; padding:5px 12px; border:1px solid var(--border);
+      background:transparent; color:var(--text2); border-radius:6px; cursor:pointer;
     }
-    .signout-btn:hover { background:rgba(231,76,60,0.1); color:#ff8a8a; border-color:rgba(231,76,60,0.3); }
+    .signout-btn:hover { background:rgba(231,76,60,0.1); color:#e74c3c; }
 
-    /* ── LAYOUT ── */
+    /* LAYOUT */
     .page { display:none; }
     .page.active { display:block; }
-    .container { max-width:1100px; margin:0 auto; padding:2rem 1.5rem; }
+    .container { max-width:1200px; margin:0 auto; padding:2rem 1.5rem; }
 
-    /* ── CARDS ── */
-    .card {
-      background:var(--card-bg);
-      border:1px solid var(--border);
-      border-radius:14px; padding:1.5rem;
-      margin-bottom:1.25rem;
-      backdrop-filter:blur(10px);
-    }
-    body.light .card { box-shadow:0 2px 12px rgba(0,0,0,0.06); }
-
-    /* ── HERO ── */
     .hero {
       display:flex; justify-content:space-between;
       align-items:flex-start; margin-bottom:1.5rem;
@@ -148,9 +115,21 @@
     }
     h1 { font-size:26px; font-weight:500; color:var(--text); margin-bottom:4px; }
     h2 { font-size:16px; font-weight:500; color:var(--text); margin-bottom:8px; }
+    h3 { font-size:14px; font-weight:500; color:var(--text); margin-bottom:6px; }
     .sub { font-size:13px; color:var(--text3); }
 
-    /* ── SUMMARY GRID ── */
+    /* CARDS */
+    .card {
+      background:var(--card-bg); border:1px solid var(--border);
+      border-radius:14px; padding:1.5rem; margin-bottom:1.25rem;
+      backdrop-filter:blur(10px); box-shadow:var(--shadow);
+    }
+    .card-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      gap:16px;
+    }
+
+    /* SUMMARY */
     .summary-grid {
       display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
       gap:10px; margin-bottom:1.25rem;
@@ -165,7 +144,7 @@
     .s-num.warn { color:#f0a020; }
     .s-num.bad  { color:#e74c3c; }
 
-    /* ── STATUS BADGE ── */
+    /* STATUS */
     .status-badge {
       display:inline-flex; align-items:center; gap:8px;
       padding:8px 18px; border-radius:99px;
@@ -174,18 +153,15 @@
     .status-badge.operational { background:rgba(46,204,113,0.15); color:#2ecc71; border-color:rgba(46,204,113,0.4); }
     .status-badge.degraded    { background:rgba(240,160,32,0.15);  color:#f0a020; border-color:rgba(240,160,32,0.4); }
     .status-badge.outage      { background:rgba(231,76,60,0.15);   color:#e74c3c; border-color:rgba(231,76,60,0.4); }
-    .status-dot {
-      width:10px; height:10px; border-radius:50%;
-    }
+    .status-dot { width:10px; height:10px; border-radius:50%; }
     .status-dot.operational { background:#2ecc71; animation:pulse 2s infinite; }
     .status-dot.degraded    { background:#f0a020; }
     .status-dot.outage      { background:#e74c3c; animation:pulseRed 2s infinite; }
-    @keyframes pulseRed {
-      0%,100% { box-shadow:0 0 0 0 rgba(231,76,60,0.6); }
-      50%     { box-shadow:0 0 0 6px rgba(231,76,60,0); }
-    }
 
-    /* ── UPTIME BAR ── */
+    @keyframes pulse    { 0%,100%{box-shadow:0 0 0 0 rgba(46,204,113,0.6);}50%{box-shadow:0 0 0 6px rgba(46,204,113,0);} }
+    @keyframes pulseRed { 0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,0.6); }50%{box-shadow:0 0 0 6px rgba(231,76,60,0); } }
+
+    /* UPTIME */
     .uptime-bar-wrap { background:rgba(255,255,255,0.08); border-radius:99px; height:8px; overflow:hidden; margin:8px 0 4px; }
     body.light .uptime-bar-wrap { background:#e8f0e8; }
     .uptime-bar-fill { height:100%; border-radius:99px; transition:width 1s ease; }
@@ -195,50 +171,28 @@
     .uptime-block.partial { background:#f0a020; opacity:0.8; }
     .uptime-block.down    { background:#e74c3c; opacity:0.8; }
 
-    /* ── COMPLAINT CARDS ── */
-    .complaint-card {
-      background:var(--bg3); border:1px solid var(--border);
-      border-left:3px solid #f0a020;
-      border-radius:8px; padding:1rem 1.25rem;
-      margin-bottom:8px;
-      animation: slideUp 0.3s forwards;
-      opacity:0;
-    }
-    @keyframes slideUp { to { opacity:1; transform:translateY(0); } }
-    .complaint-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
-    .complaint-type { font-size:14px; font-weight:500; color:var(--text); }
-    .complaint-time { font-size:12px; color:var(--text3); }
-    .complaint-desc { font-size:13px; color:var(--text2); margin-bottom:6px; }
-    .complaint-user { font-size:12px; color:var(--text3); }
-
-    /* ── RESPOND FORM ── */
-    .respond-form { margin-top:8px; display:none; }
-    .respond-form textarea {
-      width:100%; padding:8px 12px;
-      background:var(--input-bg); border:1px solid var(--border);
-      border-radius:6px; color:var(--text);
-      font-size:13px; font-family:sans-serif;
-      outline:none; resize:vertical; margin-bottom:6px;
-    }
-    .respond-btn {
-      font-size:12px; padding:5px 14px;
-      background:#2ecc71; color:#0a1f14;
-      border:none; border-radius:6px;
-      cursor:pointer; font-weight:600;
-    }
-
-    /* ── INCIDENT FORM ── */
-    .form-group { margin-bottom:12px; }
+    /* FORMS */
+    .form-group { margin-bottom:14px; }
     .form-group label { display:block; font-size:12px; color:var(--text2); margin-bottom:6px; }
-    .form-group input, .form-group select, .form-group textarea {
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
       width:100%; padding:10px 14px;
       background:var(--input-bg); border:1px solid var(--border);
       border-radius:8px; color:var(--text); font-size:14px;
       outline:none; font-family:sans-serif; transition:border-color 0.2s;
     }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:#2ecc71; }
-    .form-group select option { background:#0a1f14; }
-    body.light .form-group select option { background:#fff; color:#111; }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color:#2ecc71; }
+    .form-group select { background:var(--select-bg) !important; color:var(--text) !important; }
+    .form-group select option { background:var(--select-bg); color:var(--text); }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color:var(--text3); }
+    .form-group textarea { resize:vertical; }
+
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media(max-width:600px){ .form-row { grid-template-columns:1fr; } }
 
     .primary-btn {
       padding:10px 20px; background:#2ecc71; color:#0a1f14;
@@ -246,48 +200,146 @@
       border-radius:8px; cursor:pointer; transition:background 0.2s;
     }
     .primary-btn:hover { background:#27ae60; }
+    .primary-btn:disabled { background:#555; color:#888; cursor:not-allowed; }
+
+    .secondary-btn {
+      padding:8px 16px; background:transparent; color:var(--text2);
+      font-size:13px; border:1px solid var(--border);
+      border-radius:8px; cursor:pointer; transition:all 0.2s;
+    }
+    .secondary-btn:hover { background:rgba(255,255,255,0.08); color:var(--text); }
+
+    .danger-btn {
+      padding:8px 16px; background:transparent; color:#e74c3c;
+      font-size:13px; border:1px solid rgba(231,76,60,0.3);
+      border-radius:8px; cursor:pointer; transition:all 0.2s;
+    }
+    .danger-btn:hover { background:rgba(231,76,60,0.1); }
 
     .feedback { font-size:13px; margin-top:8px; min-height:18px; }
     .feedback.success { color:#2ecc71; }
     .feedback.error   { color:#e74c3c; }
 
-    /* ── MAINTENANCE WINDOW ── */
-    .maintenance-card {
-      background:rgba(240,160,32,0.1); border:1px solid rgba(240,160,32,0.3);
-      border-radius:10px; padding:1rem; margin-bottom:10px;
+    /* LOGO UPLOAD */
+    .logo-upload-area {
+      border:2px dashed var(--border); border-radius:12px;
+      padding:2rem; text-align:center; cursor:pointer;
+      transition:border-color 0.2s; margin-bottom:1rem;
     }
-    .maintenance-title { font-size:14px; font-weight:500; color:#f0a020; margin-bottom:4px; }
-    .maintenance-meta  { font-size:12px; color:var(--text3); }
+    .logo-upload-area:hover { border-color:#2ecc71; }
+    .logo-preview {
+      width:80px; height:80px; border-radius:12px;
+      object-fit:cover; margin:0 auto 1rem; display:none;
+    }
+    .logo-preview.visible { display:block; }
 
-    /* ── CHART ── */
-    .bar-chart { display:flex; align-items:flex-end; gap:8px; height:120px; margin-top:1rem; }
+    /* COMPLAINTS */
+    .complaint-card {
+      background:var(--bg3); border:1px solid var(--border);
+      border-left:3px solid #f0a020; border-radius:8px;
+      padding:1rem 1.25rem; margin-bottom:8px;
+      opacity:0; animation:slideUp 0.3s forwards;
+    }
+    @keyframes slideUp { to { opacity:1; } }
+    .complaint-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; gap:8px; }
+    .complaint-type { font-size:14px; font-weight:500; color:var(--text); }
+    .complaint-time { font-size:12px; color:var(--text3); flex-shrink:0; }
+    .complaint-desc { font-size:13px; color:var(--text2); margin-bottom:8px; }
+
+    .response-box {
+      background:rgba(46,204,113,0.08); border:1px solid rgba(46,204,113,0.2);
+      border-radius:8px; padding:10px 14px; margin-top:8px;
+    }
+    .response-label { font-size:11px; color:#2ecc71; margin-bottom:4px; font-weight:500; }
+    .response-text  { font-size:13px; color:var(--text2); }
+
+    .respond-area { margin-top:10px; display:none; }
+    .respond-area textarea {
+      width:100%; padding:8px 12px; background:var(--input-bg);
+      border:1px solid var(--border); border-radius:6px; color:var(--text);
+      font-size:13px; font-family:sans-serif; outline:none;
+      resize:vertical; margin-bottom:6px;
+    }
+    .respond-area textarea:focus { border-color:#2ecc71; }
+
+    /* ANNOUNCEMENTS */
+    .announcement-card {
+      background:var(--bg3); border:1px solid var(--border);
+      border-left:4px solid;
+      border-radius:8px; padding:1rem 1.25rem; margin-bottom:10px;
+    }
+    .announcement-card.outage   { border-left-color:#e74c3c; }
+    .announcement-card.degraded { border-left-color:#f0a020; }
+    .announcement-card.resolved { border-left-color:#2ecc71; }
+    .announcement-card.maintenance { border-left-color:#3498db; }
+
+    .ann-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; }
+    .ann-title  { font-size:14px; font-weight:500; color:var(--text); }
+    .ann-meta   { font-size:12px; color:var(--text3); }
+    .ann-desc   { font-size:13px; color:var(--text2); margin-bottom:8px; }
+    .ann-badge  {
+      display:inline-block; font-size:11px; padding:2px 8px;
+      border-radius:99px; border:1px solid; font-weight:500;
+    }
+    .ann-badge.outage      { background:rgba(231,76,60,0.15);  color:#e74c3c; border-color:rgba(231,76,60,0.3); }
+    .ann-badge.degraded    { background:rgba(240,160,32,0.15);  color:#f0a020; border-color:rgba(240,160,32,0.3); }
+    .ann-badge.resolved    { background:rgba(46,204,113,0.15);  color:#2ecc71; border-color:rgba(46,204,113,0.3); }
+    .ann-badge.maintenance { background:rgba(52,152,219,0.15);  color:#3498db; border-color:rgba(52,152,219,0.3); }
+
+    /* TEAM MEMBERS */
+    .member-card {
+      display:flex; justify-content:space-between; align-items:center;
+      background:var(--bg3); border:1px solid var(--border);
+      border-radius:10px; padding:1rem 1.25rem; margin-bottom:8px;
+    }
+    .member-info h3 { font-size:14px; font-weight:500; color:var(--text); margin-bottom:2px; }
+    .member-info p  { font-size:12px; color:var(--text3); }
+    .member-actions { display:flex; gap:8px; align-items:center; }
+
+    /* MAINTENANCE */
+    .maint-card {
+      background:rgba(240,160,32,0.08); border:1px solid rgba(240,160,32,0.25);
+      border-radius:10px; padding:1rem 1.25rem; margin-bottom:10px;
+    }
+    .maint-title { font-size:14px; font-weight:500; color:#f0a020; margin-bottom:4px; }
+    .maint-meta  { font-size:12px; color:var(--text3); margin-bottom:4px; }
+
+    /* ANALYTICS */
+    .bar-chart { display:flex; align-items:flex-end; gap:8px; height:120px; }
     .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
-    .bar-fill { width:100%; border-radius:4px 4px 0 0; background:#e74c3c; min-height:4px; transition:height 0.8s ease; }
-    .bar-label { font-size:11px; color:var(--text3); }
+    .bar-fill { width:100%; border-radius:4px 4px 0 0; background:#e74c3c; min-height:4px; }
+    .bar-label { font-size:11px; color:var(--text3); text-align:center; }
     .bar-val   { font-size:10px; color:var(--text2); }
 
-    /* ── NO DATA ── */
-    .no-data {
-      text-align:center; padding:2.5rem;
-      color:var(--text3); font-size:14px;
+    /* NO DATA */
+    .no-data { text-align:center; padding:2.5rem; color:var(--text3); font-size:14px; }
+
+    /* DIVIDER */
+    .divider { height:1px; background:var(--border); margin:1.25rem 0; }
+
+    /* PERMISSION LOCK */
+    .locked-notice {
+      background:rgba(231,76,60,0.08); border:1px solid rgba(231,76,60,0.2);
+      border-radius:8px; padding:1rem; margin-bottom:1rem;
+      font-size:13px; color:#e74c3c; text-align:center;
     }
 
-    /* ── FOOTER ── */
+    /* FOOTER */
     .footer {
       text-align:center; font-size:12px; color:var(--text3);
-      padding:1.5rem; border-top:1px solid var(--border);
-      margin-top:2rem;
+      padding:1.5rem; border-top:1px solid var(--border); margin-top:2rem;
     }
     .footer a { color:#2ecc71; text-decoration:none; }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width:768px) {
-      .nav-inner { flex-wrap:wrap; height:auto; padding:10px 1rem; }
-      .nav-links { order:3; width:100%; overflow-x:auto; flex-wrap:nowrap; }
-      .nav-link  { white-space:nowrap; font-size:12px; }
-      .container { padding:1rem; }
-      .hero { flex-direction:column; }
+    /* RESPONSIVE */
+    @media(max-width:768px){
+      .nav-inner { flex-wrap:wrap; height:auto; padding:10px 1rem; gap:8px; }
+      .nav-links  { order:3; width:100%; overflow-x:auto; flex-wrap:nowrap; padding-bottom:4px; }
+      .nav-link   { white-space:nowrap; font-size:12px; }
+      .container  { padding:1rem; }
+      .hero       { flex-direction:column; }
       .summary-grid { grid-template-columns:repeat(2,1fr); }
+      .card-grid  { grid-template-columns:1fr; }
     }
   </style>
 </head>
@@ -295,19 +347,21 @@
 
   <nav class="navbar">
     <div class="nav-inner">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div class="nav-brand">
-          <div class="brand-dot"></div>
-          FinCheck
-        </div>
-        <span class="b2b-tag">B2B</span>
+      <div class="nav-brand">
+        <div class="brand-dot"></div>
+        <img src="" alt="logo" class="brand-logo" id="nav-logo"/>
+        <span class="brand-name" id="nav-company-name">FinCheck B2B</span>
+        <span class="b2b-tag">PORTAL</span>
+        <span class="role-tag" id="nav-role-tag"></span>
       </div>
       <div class="nav-links">
         <button class="nav-link active" onclick="showPage('overview',this)">Overview</button>
         <button class="nav-link" onclick="showPage('complaints',this)">Complaints</button>
-        <button class="nav-link" onclick="showPage('incidents',this)">Incidents</button>
+        <button class="nav-link" onclick="showPage('announcements',this)">Announcements</button>
         <button class="nav-link" onclick="showPage('maintenance',this)">Maintenance</button>
         <button class="nav-link" onclick="showPage('analytics',this)">Analytics</button>
+        <button class="nav-link" onclick="showPage('team',this)">Team</button>
+        <button class="nav-link" onclick="showPage('reports',this)">Reports</button>
         <button class="nav-link" onclick="showPage('settings',this)">Settings</button>
       </div>
       <div class="nav-right">
@@ -315,7 +369,7 @@
           <button class="theme-btn active" onclick="setTheme('dark')">🌙</button>
           <button class="theme-btn" onclick="setTheme('light')">☀️</button>
         </div>
-        <span class="company-name" id="company-display"></span>
+        <span class="company-name" id="nav-user-name"></span>
         <button class="signout-btn" onclick="doSignOut()">Sign out</button>
       </div>
     </div>
@@ -326,36 +380,35 @@
     <div class="container">
       <div class="hero">
         <div>
-          <p class="sub" id="company-greeting"></p>
-          <h1 id="service-title">Loading...</h1>
+          <p class="sub" id="overview-greeting"></p>
+          <h1 id="overview-title">Loading...</h1>
         </div>
-        <div id="service-status-badge"></div>
+        <div id="overview-status-badge"></div>
       </div>
-
       <div class="summary-grid" id="overview-summary"></div>
-
       <div class="card">
         <h2>30-day uptime history</h2>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span class="sub" id="uptime-pct-label"></span>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span class="sub" id="uptime-label"></span>
           <span class="sub" id="uptime-trend"></span>
         </div>
-        <div class="uptime-bar-wrap">
-          <div class="uptime-bar-fill" id="uptime-bar-fill"></div>
-        </div>
+        <div class="uptime-bar-wrap"><div class="uptime-bar-fill" id="uptime-fill"></div></div>
         <div class="uptime-30" id="uptime-30"></div>
         <div style="display:flex;justify-content:space-between;margin-top:6px;">
           <span style="font-size:11px;color:var(--text3)">30 days ago</span>
           <span style="font-size:11px;color:var(--text3)">Today</span>
         </div>
       </div>
-
-      <div class="card">
-        <h2>Recent community complaints</h2>
-        <p class="sub" style="margin-bottom:1rem">Latest reports submitted by users about your service</p>
-        <div id="recent-complaints-overview"></div>
+      <div class="card-grid">
+        <div class="card">
+          <h2>Recent complaints</h2>
+          <div id="overview-complaints"></div>
+        </div>
+        <div class="card">
+          <h2>Latest announcements</h2>
+          <div id="overview-announcements"></div>
+        </div>
       </div>
-
     </div>
   </div>
 
@@ -363,50 +416,70 @@
   <div id="page-complaints" class="page">
     <div class="container">
       <div class="hero">
-        <div>
-          <h1>Community Complaints</h1>
-          <p class="sub">All user-submitted reports about your service — respond publicly</p>
+        <div><h1>Community Complaints</h1><p class="sub">User-submitted reports — respond publicly</p></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="sub" id="complaints-total"></span>
+          <select id="complaints-filter" onchange="renderComplaints()"
+            style="padding:6px 12px;background:var(--select-bg);border:1px solid var(--border);
+            border-radius:8px;color:var(--text);font-size:13px;outline:none;cursor:pointer;">
+            <option value="all">All types</option>
+            <option>Cannot log in</option>
+            <option>Transaction failed</option>
+            <option>Funds debited but not received</option>
+            <option>OTP not received</option>
+            <option>App not loading</option>
+            <option>Slow transactions</option>
+          </select>
         </div>
-        <div id="complaints-count" style="font-size:13px;color:var(--text3);"></div>
       </div>
       <div id="complaints-list"></div>
     </div>
   </div>
 
-  <!-- INCIDENTS -->
-  <div id="page-incidents" class="page">
+  <!-- ANNOUNCEMENTS -->
+  <div id="page-announcements" class="page">
     <div class="container">
       <div class="hero">
-        <div>
-          <h1>Incident Management</h1>
-          <p class="sub">Log and manage service incidents publicly</p>
+        <div><h1>Announcements</h1><p class="sub">Publish official updates visible to all FinCheck users</p></div>
+      </div>
+
+      <div id="announce-form-wrap" class="card" style="margin-bottom:1.5rem">
+        <h2 style="margin-bottom:1rem">Publish announcement</h2>
+        <div id="announce-permission"></div>
+        <div id="announce-form">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="ann-title" placeholder="e.g. Service disruption — login issues"/>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Type</label>
+              <select id="ann-type">
+                <option value="outage">Outage — service down</option>
+                <option value="degraded">Degraded — partial issues</option>
+                <option value="resolved">Resolved — issue fixed</option>
+                <option value="maintenance">Maintenance — planned downtime</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Estimated resolution (optional)</label>
+              <input type="datetime-local" id="ann-eta"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Message to users</label>
+            <textarea id="ann-desc" rows="3" placeholder="Describe the issue and what your team is doing about it..."></textarea>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <button class="primary-btn" onclick="publishAnnouncement()">Publish to all users</button>
+            <span style="font-size:12px;color:var(--text3)">Will appear on status page + user dashboard + trigger email alerts</span>
+          </div>
+          <div class="feedback" id="ann-feedback"></div>
         </div>
       </div>
 
-      <div class="card" style="margin-bottom:1.5rem">
-        <h2 style="margin-bottom:1rem">Log new incident</h2>
-        <div class="form-group">
-          <label>Incident title</label>
-          <input type="text" id="inc-title" placeholder="e.g. Login service disruption"/>
-        </div>
-        <div class="form-group">
-          <label>Severity</label>
-          <select id="inc-severity">
-            <option value="degraded">Degraded — partial disruption</option>
-            <option value="outage">Outage — full service down</option>
-            <option value="resolved">Resolved — issue fixed</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Description</label>
-          <textarea id="inc-desc" rows="3" placeholder="Describe what happened and what's being done..."></textarea>
-        </div>
-        <button class="primary-btn" onclick="logIncident()">Publish incident</button>
-        <div class="feedback" id="inc-feedback"></div>
-      </div>
-
-      <h2 style="margin-bottom:1rem">Published incidents</h2>
-      <div id="incidents-list"></div>
+      <h2 style="margin-bottom:1rem">Published announcements</h2>
+      <div id="announcements-list"></div>
     </div>
   </div>
 
@@ -414,35 +487,32 @@
   <div id="page-maintenance" class="page">
     <div class="container">
       <div class="hero">
-        <div>
-          <h1>Maintenance Windows</h1>
-          <p class="sub">Schedule planned downtime so users know in advance</p>
-        </div>
+        <div><h1>Maintenance Windows</h1><p class="sub">Schedule planned downtime so users know in advance</p></div>
       </div>
-
       <div class="card" style="margin-bottom:1.5rem">
         <h2 style="margin-bottom:1rem">Schedule maintenance</h2>
         <div class="form-group">
-          <label>Maintenance title</label>
+          <label>Title</label>
           <input type="text" id="maint-title" placeholder="e.g. Scheduled system upgrade"/>
         </div>
-        <div class="form-group">
-          <label>Start date & time</label>
-          <input type="datetime-local" id="maint-start"/>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start</label>
+            <input type="datetime-local" id="maint-start"/>
+          </div>
+          <div class="form-group">
+            <label>End</label>
+            <input type="datetime-local" id="maint-end"/>
+          </div>
         </div>
         <div class="form-group">
-          <label>End date & time</label>
-          <input type="datetime-local" id="maint-end"/>
+          <label>What will be affected</label>
+          <textarea id="maint-desc" rows="2" placeholder="Describe what users should expect during this window..."></textarea>
         </div>
-        <div class="form-group">
-          <label>Description</label>
-          <textarea id="maint-desc" rows="2" placeholder="What will be affected during maintenance?"></textarea>
-        </div>
-        <button class="primary-btn" onclick="scheduleMaintenance()">Schedule maintenance</button>
+        <button class="primary-btn" onclick="scheduleMaintenance()">Schedule & notify users</button>
         <div class="feedback" id="maint-feedback"></div>
       </div>
-
-      <h2 style="margin-bottom:1rem">Upcoming & past maintenance</h2>
+      <h2 style="margin-bottom:1rem">Scheduled maintenance</h2>
       <div id="maintenance-list"></div>
     </div>
   </div>
@@ -451,29 +521,117 @@
   <div id="page-analytics" class="page">
     <div class="container">
       <div class="hero">
-        <div>
-          <h1>Analytics</h1>
-          <p class="sub">Complaint trends and performance metrics for your service</p>
-        </div>
+        <div><h1>Analytics</h1><p class="sub">Performance metrics and complaint trends</p></div>
       </div>
-
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;">
+      <div class="summary-grid" id="analytics-summary"></div>
+      <div class="card-grid">
         <div class="card">
-          <h2>Complaint types breakdown</h2>
-          <div id="complaint-types-chart"></div>
+          <h2>Complaint types</h2>
+          <div id="type-chart" style="margin-top:1rem"></div>
         </div>
         <div class="card">
-          <h2>Monthly complaint volume</h2>
-          <div class="bar-chart" id="monthly-chart"></div>
+          <h2>Monthly volume</h2>
+          <div class="bar-chart" id="monthly-chart" style="margin-top:1rem"></div>
         </div>
         <div class="card">
-          <h2>Top complaint issues</h2>
-          <div id="top-issues"></div>
+          <h2>Response rate</h2>
+          <div id="response-rate" style="margin-top:1rem"></div>
         </div>
         <div class="card">
           <h2>Service health score</h2>
-          <div id="health-score-display"></div>
+          <div id="health-score" style="margin-top:1rem"></div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEAM -->
+  <div id="page-team" class="page">
+    <div class="container">
+      <div class="hero">
+        <div><h1>Team Management</h1><p class="sub">Manage roles and access for your company members</p></div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <h2 style="margin-bottom:6px">Role permissions</h2>
+        <p class="sub" style="margin-bottom:1rem">What each role can do in the portal</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">
+          <div style="background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.2);border-radius:10px;padding:1rem;">
+            <p style="font-size:13px;font-weight:600;color:#e74c3c;margin-bottom:8px;">ADMIN</p>
+            <p style="font-size:12px;color:var(--text2);line-height:1.6;">Full access · Edit company settings · Manage team · Publish announcements · Generate reports · All features</p>
+          </div>
+          <div style="background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.2);border-radius:10px;padding:1rem;">
+            <p style="font-size:13px;font-weight:600;color:#3498db;margin-bottom:8px;">TECHNICIAN</p>
+            <p style="font-size:12px;color:var(--text2);line-height:1.6;">Log incidents · Respond to complaints · Schedule maintenance · View analytics · Cannot edit settings or manage team</p>
+          </div>
+          <div style="background:rgba(150,150,150,0.08);border:1px solid rgba(150,150,150,0.2);border-radius:10px;padding:1rem;">
+            <p style="font-size:13px;font-weight:600;color:#aaa;margin-bottom:8px;">VIEWER</p>
+            <p style="font-size:12px;color:var(--text2);line-height:1.6;">Read-only access · View complaints · View analytics · View announcements · Cannot post or edit anything</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem" id="invite-section">
+        <h2 style="margin-bottom:1rem">Invite team member</h2>
+        <div id="invite-permission"></div>
+        <div id="invite-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" id="invite-name" placeholder="Team member name"/>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="invite-email" placeholder="colleague@company.com"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select id="invite-role">
+              <option value="technician">Technician</option>
+              <option value="viewer">Viewer</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <button class="primary-btn" onclick="inviteMember()">Add team member</button>
+          <div class="feedback" id="invite-feedback"></div>
+        </div>
+      </div>
+
+      <h2 style="margin-bottom:1rem">Current team</h2>
+      <div id="team-list"></div>
+    </div>
+  </div>
+
+  <!-- REPORTS -->
+  <div id="page-reports" class="page">
+    <div class="container">
+      <div class="hero">
+        <div><h1>Reports</h1><p class="sub">Generate SLA reports for your service</p></div>
+      </div>
+      <div class="card">
+        <h2 style="margin-bottom:1rem">Generate SLA report</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Report period</label>
+            <select id="report-period">
+              <option>May 2026</option>
+              <option>April 2026</option>
+              <option>March 2026</option>
+              <option>February 2026</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Recipient (optional)</label>
+            <input type="text" id="report-recipient" placeholder="e.g. Board of Directors"/>
+          </div>
+        </div>
+        <button class="primary-btn" onclick="generateCompanyReport()">Generate & download PDF</button>
+        <div class="feedback" id="report-feedback"></div>
+      </div>
+      <div class="card" id="report-preview-card" style="display:none">
+        <h2 style="margin-bottom:1rem">Report preview</h2>
+        <div id="report-preview-content"></div>
       </div>
     </div>
   </div>
@@ -482,43 +640,89 @@
   <div id="page-settings" class="page">
     <div class="container">
       <div class="hero">
-        <div>
-          <h1>Company Settings</h1>
-          <p class="sub">Manage your company profile and notification preferences</p>
+        <div><h1>Company Settings</h1><p class="sub">Manage your company profile</p></div>
+      </div>
+      <div id="settings-permission-notice"></div>
+
+      <div class="card" style="margin-bottom:1.25rem">
+        <h2 style="margin-bottom:1rem">Company logo</h2>
+        <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+          <div>
+            <img src="" alt="Company logo" id="logo-preview" class="logo-preview"/>
+            <div class="logo-upload-area" id="logo-upload-area" onclick="document.getElementById('logo-file').click()">
+              <p style="font-size:14px;color:var(--text2);margin-bottom:4px;">Click to upload logo</p>
+              <p style="font-size:12px;color:var(--text3)">PNG, JPG up to 5MB</p>
+            </div>
+            <input type="file" id="logo-file" accept="image/*" style="display:none" onchange="uploadLogo(this)"/>
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <p style="font-size:13px;color:var(--text2);line-height:1.7;">
+              Your logo appears in the company portal navigation and on your service card on the public FinCheck status page.
+              Recommended size: 200×200px, square format.
+            </p>
+          </div>
         </div>
+        <div class="feedback" id="logo-feedback"></div>
       </div>
 
-      <div class="card">
+      <div class="card" style="margin-bottom:1.25rem">
         <h2 style="margin-bottom:1rem">Company profile</h2>
-        <div id="profile-info"></div>
+        <div class="form-group">
+          <label>Company name</label>
+          <input type="text" id="settings-company" placeholder="Your company name"/>
+        </div>
+        <div class="form-group">
+          <label>Service represented</label>
+          <select id="settings-service">
+            <option>Sara Money</option>
+            <option>MTN Mobile Money</option>
+            <option>Orange Money</option>
+            <option>Express Union</option>
+            <option>CCA Bank</option>
+            <option>Yoomee Mobile</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Contact email</label>
+            <input type="email" id="settings-email" placeholder="contact@company.com"/>
+          </div>
+          <div class="form-group">
+            <label>Alert phone</label>
+            <input type="tel" id="settings-phone" placeholder="+237 6XX XXX XXX"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Company website</label>
+          <input type="url" id="settings-website" placeholder="https://yourcompany.com"/>
+        </div>
+        <div class="form-group">
+          <label>Short description</label>
+          <textarea id="settings-desc" rows="2" placeholder="Brief description of your service..."></textarea>
+        </div>
+        <button class="primary-btn" id="save-settings-btn" onclick="saveSettings()">Save changes</button>
+        <div class="feedback" id="settings-feedback"></div>
       </div>
 
       <div class="card">
-        <h2 style="margin-bottom:1rem">Alert notifications</h2>
-        <div class="form-group">
-          <label>Alert email</label>
-          <input type="email" id="settings-email" placeholder="alerts@yourcompany.com"/>
-        </div>
-        <div class="form-group">
-          <label>Alert phone (SMS)</label>
-          <input type="tel" id="settings-phone" placeholder="+237 6XX XXX XXX"/>
-        </div>
-        <button class="primary-btn" onclick="saveSettings()">Save settings</button>
-        <div class="feedback" id="settings-feedback"></div>
+        <h2 style="margin-bottom:6px">Account info</h2>
+        <div id="account-info"></div>
       </div>
     </div>
   </div>
 
   <footer class="footer">
     FinCheck Cameroon B2B Portal · Built by Ngong Kwale Cedric ·
-    <a href="https://github.com/kwalecedric" target="_blank">GitHub</a>
+    <a href="https://github.com/kwalecedric" target="_blank">GitHub</a> ·
+    <a href="index.html">User portal</a>
   </footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getDatabase, ref, get, set, push, onValue, query, orderByChild, equalTo }
+    import { getDatabase, ref, get, set, push, onValue, query, orderByChild }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -531,25 +735,53 @@
       appId: "1:842559320219:web:6011def2b8d8031b6bd63e"
     };
 
-    const firebaseApp = initializeApp(firebaseConfig);
-    const auth = getAuth(firebaseApp);
-    const db   = getDatabase(firebaseApp);
+    const CLOUDINARY_CLOUD  = "dsccskrei";
+    const CLOUDINARY_PRESET = "fincheck_logos";
 
-    let currentUser    = null;
-    let companyData    = null;
-    let companyReports = [];
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getDatabase(app);
 
-    // Default service data
+    let currentUser  = null;
+    let companyData  = null;
+    let userRole     = "viewer";
+    let allReports   = [];
+
     const defaultUptime = ["up","up","up","up","up","up","partial","partial","up","up","up","up","up","up","down","up","up","up","up","up","up","up","partial","up","up","up","up","up","up","up"];
 
-    // ── AUTH ──
+    // ── AUTH ──────────────────────────────────────────
     onAuthStateChanged(auth, async user => {
       if (!user) { window.location.href = "company-login.html"; return; }
       currentUser = user;
-      const snap = await get(ref(db, `companies/${user.uid}`));
-      if (!snap.exists()) { window.location.href = "company-login.html"; return; }
-      companyData = snap.val();
-      initDashboard();
+
+      // Check if this user is a company owner
+      const ownerSnap = await get(ref(db, `companies/${user.uid}`));
+      if (ownerSnap.exists()) {
+        companyData = ownerSnap.val();
+        userRole    = "admin"; // owner is always admin
+        initPortal();
+        return;
+      }
+
+      // Check if this user is a team member
+      const membersSnap = await get(ref(db, "companyMembers"));
+      if (membersSnap.exists()) {
+        const members = membersSnap.val();
+        const myEntry = Object.values(members).find(m => m.email === user.email);
+        if (myEntry) {
+          const compSnap = await get(ref(db, `companies/${myEntry.companyOwnerId}`));
+          if (compSnap.exists()) {
+            companyData = compSnap.val();
+            companyData.ownerId = myEntry.companyOwnerId;
+            userRole = myEntry.role || "viewer";
+            initPortal();
+            return;
+          }
+        }
+      }
+
+      // Not a valid company user
+      window.location.href = "company-login.html";
     });
 
     window.doSignOut = async function() {
@@ -557,47 +789,62 @@
       window.location.href = "company-login.html";
     };
 
-    // ── THEME ──
+    // ── THEME ─────────────────────────────────────────
     window.setTheme = function(theme) {
       document.body.className = theme;
-      document.querySelectorAll(".theme-btn").forEach((btn,i) => {
-        btn.classList.toggle("active", (i===0&&theme==="dark")||(i===1&&theme==="light"));
+      document.querySelectorAll(".theme-btn").forEach((b,i) => {
+        b.classList.toggle("active",(i===0&&theme==="dark")||(i===1&&theme==="light"));
       });
-      if (currentUser && companyData) {
-        set(ref(db,`companies/${currentUser.uid}/theme`), theme);
-      }
+      const ownerId = companyData.ownerId || currentUser.uid;
+      set(ref(db,`companies/${ownerId}/theme`), theme);
     };
 
-    // ── PAGES ──
+    // ── PAGES ─────────────────────────────────────────
     window.showPage = function(name, btn) {
       document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
       document.querySelectorAll(".nav-link").forEach(l=>l.classList.remove("active"));
       document.getElementById("page-"+name).classList.add("active");
       if (btn) btn.classList.add("active");
-      if (name==="complaints")  renderComplaints();
-      if (name==="incidents")   renderIncidents();
-      if (name==="maintenance") renderMaintenance();
-      if (name==="analytics")   renderAnalytics();
-      if (name==="settings")    renderSettings();
+      if (name==="complaints")   renderComplaints();
+      if (name==="announcements"){ renderAnnouncements(); checkAnnouncePermission(); }
+      if (name==="maintenance")  renderMaintenance();
+      if (name==="analytics")    renderAnalytics();
+      if (name==="team")         { renderTeam(); checkTeamPermission(); }
+      if (name==="reports")      renderReportPreview();
+      if (name==="settings")     { loadSettings(); checkSettingsPermission(); }
     };
 
-    // ── INIT ──
-    function initDashboard() {
+    // ── INIT ──────────────────────────────────────────
+    function initPortal() {
       const theme = companyData.theme || "dark";
       document.body.className = theme;
-      document.querySelectorAll(".theme-btn").forEach((btn,i) => {
-        btn.classList.toggle("active", (i===0&&theme==="dark")||(i===1&&theme==="light"));
+      document.querySelectorAll(".theme-btn").forEach((b,i) => {
+        b.classList.toggle("active",(i===0&&theme==="dark")||(i===1&&theme==="light"));
       });
 
-      document.getElementById("company-display").textContent = companyData.company;
-      document.getElementById("company-greeting").textContent = `${companyData.company} · ${companyData.service}`;
-      document.getElementById("service-title").textContent = companyData.service;
+      // Nav
+      document.getElementById("nav-company-name").textContent = companyData.company;
+      document.getElementById("nav-user-name").textContent    = currentUser.displayName || currentUser.email;
+      const roleTag = document.getElementById("nav-role-tag");
+      roleTag.textContent = userRole.toUpperCase();
+      roleTag.className = `role-tag ${userRole}`;
+
+      // Logo
+      if (companyData.logoUrl) {
+        const logo = document.getElementById("nav-logo");
+        logo.src = companyData.logoUrl;
+        logo.classList.add("visible");
+      }
+
+      // Overview
+      document.getElementById("overview-greeting").textContent = `${companyData.company} · ${companyData.service}`;
+      document.getElementById("overview-title").textContent    = companyData.service;
 
       loadServiceData();
       loadReports();
     }
 
-    // ── SERVICE DATA ──
+    // ── SERVICE DATA ──────────────────────────────────
     function loadServiceData() {
       const uptime   = defaultUptime;
       const upDays   = uptime.filter(d=>d==="up").length;
@@ -606,55 +853,44 @@
       const pct      = ((upDays+partDays*0.5)/uptime.length*100).toFixed(2);
       const status   = downDays>0?"outage":partDays>2?"degraded":"operational";
       const color    = pct>=99?"#2ecc71":pct>=95?"#f0a020":"#e74c3c";
+      const label    = status.charAt(0).toUpperCase()+status.slice(1);
 
-      // Status badge
-      const badge = document.getElementById("service-status-badge");
-      const statusLabel = status==="operational"?"Operational":status==="degraded"?"Degraded":"Outage";
-      badge.innerHTML = `
+      document.getElementById("overview-status-badge").innerHTML = `
         <div class="status-badge ${status}">
-          <div class="status-dot ${status}"></div>
-          ${statusLabel}
+          <div class="status-dot ${status}"></div>${label}
         </div>`;
 
-      // Summary
       document.getElementById("overview-summary").innerHTML = `
         <div class="summary-card"><p class="s-label">Uptime</p><p class="s-num ok">${pct}%</p></div>
-        <div class="summary-card"><p class="s-label">Days up</p><p class="s-num ok">${upDays}</p></div>
-        <div class="summary-card"><p class="s-label">Partial days</p><p class="s-num warn">${partDays}</p></div>
-        <div class="summary-card"><p class="s-label">Days down</p><p class="s-num bad">${downDays}</p></div>
-      `;
+        <div class="summary-card"><p class="s-label">Days operational</p><p class="s-num ok">${upDays}</p></div>
+        <div class="summary-card"><p class="s-label">Partial outages</p><p class="s-num warn">${partDays}</p></div>
+        <div class="summary-card"><p class="s-label">Full outages</p><p class="s-num bad">${downDays}</p></div>`;
 
-      // Uptime bar
-      document.getElementById("uptime-pct-label").textContent = `${pct}% uptime over 30 days`;
-      document.getElementById("uptime-trend").textContent = pct>=99?"Excellent performance":pct>=95?"Good performance":"Needs improvement";
-      document.getElementById("uptime-bar-fill").style.cssText = `width:${pct}%;background:${color}`;
+      document.getElementById("uptime-label").textContent  = `${pct}% uptime over 30 days`;
+      document.getElementById("uptime-trend").textContent  = pct>=99?"Excellent":pct>=95?"Good":"Needs improvement";
+      document.getElementById("uptime-fill").style.cssText = `width:${pct}%;background:${color}`;
       document.getElementById("uptime-30").innerHTML = uptime.map(d=>`<div class="uptime-block ${d}"></div>`).join("");
     }
 
-    // ── LOAD REPORTS ──
+    // ── REPORTS (complaints) ──────────────────────────
     function loadReports() {
-      const reportsRef = ref(db, "reports");
-      onValue(reportsRef, snap => {
+      onValue(ref(db,"reports"), snap => {
         const data = snap.val();
-        if (!data) { companyReports = []; }
-        else {
-          companyReports = Object.entries(data)
-            .map(([id,val])=>({id,...val}))
-            .filter(r => r.service === companyData.service)
-            .sort((a,b)=>b.timestamp-a.timestamp);
-        }
+        allReports = data
+          ? Object.entries(data).map(([id,v])=>({id,...v}))
+              .filter(r=>r.service===companyData.service)
+              .sort((a,b)=>b.timestamp-a.timestamp)
+          : [];
         renderOverviewComplaints();
       });
     }
 
     function renderOverviewComplaints() {
-      const el = document.getElementById("recent-complaints-overview");
+      const el = document.getElementById("overview-complaints");
       if (!el) return;
-      if (!companyReports.length) {
-        el.innerHTML=`<div class="no-data">No complaints yet for ${companyData.service}.</div>`; return;
-      }
-      el.innerHTML = companyReports.slice(0,3).map(r=>`
-        <div class="complaint-card" style="animation-delay:0s">
+      if (!allReports.length) { el.innerHTML=`<div class="no-data">No complaints yet.</div>`; return; }
+      el.innerHTML = allReports.slice(0,3).map(r=>`
+        <div class="complaint-card">
           <div class="complaint-top">
             <span class="complaint-type">${r.type}</span>
             <span class="complaint-time">${timeAgo(r.timestamp)}</span>
@@ -665,238 +901,649 @@
 
     function renderComplaints() {
       const list    = document.getElementById("complaints-list");
-      const countEl = document.getElementById("complaints-count");
+      const countEl = document.getElementById("complaints-total");
+      const filter  = document.getElementById("complaints-filter")?.value || "all";
       if (!list) return;
-      if (countEl) countEl.textContent = `${companyReports.length} total report${companyReports.length!==1?"s":""}`;
-      if (!companyReports.length) {
-        list.innerHTML=`<div class="no-data">No complaints found for ${companyData.service}.</div>`; return;
-      }
-      list.innerHTML = companyReports.map((r,i) => `
+
+      let filtered = allReports;
+      if (filter !== "all") filtered = allReports.filter(r=>r.type===filter);
+      if (countEl) countEl.textContent = `${filtered.length} report${filtered.length!==1?"s":""}`;
+
+      if (!filtered.length) { list.innerHTML=`<div class="no-data">No complaints found.</div>`; return; }
+
+      list.innerHTML = filtered.map((r,i)=>`
         <div class="complaint-card" style="animation-delay:${i*0.04}s">
           <div class="complaint-top">
             <span class="complaint-type">${r.type}</span>
             <span class="complaint-time">${timeAgo(r.timestamp)}</span>
           </div>
-          <p class="complaint-desc">${r.desc}</p>
-          <p class="complaint-user">Reported by community member</p>
-          <button onclick="toggleRespond('${r.id}')"
-            style="font-size:12px;padding:4px 12px;margin-top:8px;border:1px solid rgba(46,204,113,0.3);
-            background:transparent;color:#2ecc71;border-radius:6px;cursor:pointer;">
-            Respond publicly
-          </button>
-          <div class="respond-form" id="respond-${r.id}">
-            <textarea rows="2" placeholder="Write a public response..." id="respond-text-${r.id}"></textarea>
-            <button class="respond-btn" onclick="submitResponse('${r.id}')">Post response</button>
-          </div>
+          <p class="complaint-desc">${r.desc||"No description provided."}</p>
+          ${canRespond() ? `
+            <button onclick="toggleRespond('${r.id}')"
+              style="font-size:12px;padding:4px 12px;border:1px solid rgba(46,204,113,0.3);
+              background:transparent;color:#2ecc71;border-radius:6px;cursor:pointer;">
+              ${r.response ? "Edit response" : "Respond publicly"}
+            </button>
+            <div class="respond-area" id="respond-${r.id}">
+              <textarea rows="2" placeholder="Write an official public response..."
+                id="respond-text-${r.id}">${r.response||""}</textarea>
+              <button style="font-size:12px;padding:5px 14px;background:#2ecc71;color:#0a1f14;
+                border:none;border-radius:6px;cursor:pointer;font-weight:600;"
+                onclick="submitResponse('${r.id}')">Post response</button>
+            </div>` : ""}
           ${r.response ? `
-            <div style="margin-top:8px;padding:8px 12px;background:rgba(46,204,113,0.08);
-              border:1px solid rgba(46,204,113,0.2);border-radius:6px;">
-              <p style="font-size:11px;color:#2ecc71;margin-bottom:3px;">Official response from ${companyData.company}</p>
-              <p style="font-size:13px;color:var(--text2);">${r.response}</p>
+            <div class="response-box">
+              <p class="response-label">Official response — ${companyData.company}</p>
+              <p class="response-text">${r.response}</p>
             </div>` : ""}
         </div>`).join("");
     }
 
     window.toggleRespond = function(id) {
-      const form = document.getElementById("respond-"+id);
-      if (form) form.style.display = form.style.display==="block" ? "none" : "block";
+      const el = document.getElementById("respond-"+id);
+      if (el) el.style.display = el.style.display==="block"?"none":"block";
     };
 
-    window.submitResponse = async function(reportId) {
-      const text = document.getElementById(`respond-text-${reportId}`)?.value.trim();
+    window.submitResponse = async function(id) {
+      const text = document.getElementById(`respond-text-${id}`)?.value.trim();
       if (!text) return;
-      await set(ref(db, `reports/${reportId}/response`), text);
-      await set(ref(db, `reports/${reportId}/respondedBy`), companyData.company);
+      await set(ref(db,`reports/${id}/response`), text);
+      await set(ref(db,`reports/${id}/respondedBy`), companyData.company);
       renderComplaints();
     };
 
-    // ── INCIDENTS ──
-    function renderIncidents() {
-      const list = document.getElementById("incidents-list");
-      if (!list) return;
-      const incRef = query(ref(db, "companyIncidents"), orderByChild("company"),
-        equalTo(companyData.company));
-      // For simplicity load all and filter
-      get(ref(db,"companyIncidents")).then(snap => {
-        const data = snap.val();
-        if (!data) { list.innerHTML=`<div class="no-data">No incidents logged yet.</div>`; return; }
-        const incidents = Object.entries(data)
-          .map(([id,val])=>({id,...val}))
-          .filter(i=>i.company===companyData.company)
-          .sort((a,b)=>b.timestamp-a.timestamp);
-        if (!incidents.length) { list.innerHTML=`<div class="no-data">No incidents logged yet.</div>`; return; }
-        const colors = { outage:"#e74c3c", degraded:"#f0a020", resolved:"#2ecc71" };
-        list.innerHTML = incidents.map(inc=>`
-          <div style="background:var(--bg3);border:1px solid var(--border);
-            border-left:3px solid ${colors[inc.severity]||"#888"};
-            border-radius:8px;padding:1rem 1.25rem;margin-bottom:8px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-              <p style="font-size:14px;font-weight:500;color:var(--text);">${inc.title}</p>
-              <span style="font-size:12px;color:${colors[inc.severity]};text-transform:capitalize;">${inc.severity}</span>
-            </div>
-            <p style="font-size:12px;color:var(--text3);margin-bottom:4px;">${new Date(inc.timestamp).toLocaleString("en-GB")}</p>
-            <p style="font-size:13px;color:var(--text2);">${inc.desc}</p>
-          </div>`).join("");
-      });
+    // ── PERMISSION HELPERS ────────────────────────────
+    function canEdit()    { return userRole === "admin"; }
+    function canRespond() { return userRole === "admin" || userRole === "technician"; }
+    function canView()    { return true; }
+
+    function lockedHtml(msg) {
+      return `<div class="locked-notice">🔒 ${msg}</div>`;
     }
 
-    window.logIncident = async function() {
-      const title    = document.getElementById("inc-title").value.trim();
-      const severity = document.getElementById("inc-severity").value;
-      const desc     = document.getElementById("inc-desc").value.trim();
-      const fb       = document.getElementById("inc-feedback");
-      if (!title||!desc) { fb.textContent="Please fill in all fields."; fb.className="feedback error"; return; }
-      await push(ref(db,"companyIncidents"), {
-        title, severity, desc,
+    function checkAnnouncePermission() {
+      const el = document.getElementById("announce-permission");
+      const form = document.getElementById("announce-form");
+      if (!canRespond()) {
+        if (el) el.innerHTML = lockedHtml("Only Admins and Technicians can publish announcements.");
+        if (form) form.style.display = "none";
+      } else {
+        if (el) el.innerHTML = "";
+        if (form) form.style.display = "block";
+      }
+    }
+
+    function checkTeamPermission() {
+      const el   = document.getElementById("invite-permission");
+      const form = document.getElementById("invite-form");
+      if (!canEdit()) {
+        if (el) el.innerHTML = lockedHtml("Only Admins can manage team members.");
+        if (form) form.style.display = "none";
+      } else {
+        if (el) el.innerHTML = "";
+        if (form) form.style.display = "block";
+      }
+    }
+
+    function checkSettingsPermission() {
+      const notice = document.getElementById("settings-permission-notice");
+      const btn    = document.getElementById("save-settings-btn");
+      const inputs = document.querySelectorAll("#page-settings input, #page-settings select, #page-settings textarea");
+      if (!canEdit()) {
+        if (notice) notice.innerHTML = lockedHtml("Only Admins can edit company settings. You have view-only access.");
+        if (btn) btn.disabled = true;
+        inputs.forEach(i=>i.disabled=true);
+      } else {
+        if (notice) notice.innerHTML = "";
+        if (btn) btn.disabled = false;
+        inputs.forEach(i=>i.disabled=false);
+      }
+    }
+
+    // ── ANNOUNCEMENTS ─────────────────────────────────
+    window.publishAnnouncement = async function() {
+      if (!canRespond()) return;
+      const title = document.getElementById("ann-title").value.trim();
+      const type  = document.getElementById("ann-type").value;
+      const desc  = document.getElementById("ann-desc").value.trim();
+      const eta   = document.getElementById("ann-eta").value;
+      const fb    = document.getElementById("ann-feedback");
+
+      if (!title||!desc) { fb.textContent="Please fill in title and message."; fb.className="feedback error"; return; }
+
+      const announcement = {
+        title, type, desc, service: companyData.service,
         company: companyData.company,
-        service: companyData.service,
+        logoUrl: companyData.logoUrl || "",
+        eta: eta ? new Date(eta).getTime() : null,
+        publishedBy: currentUser.displayName || currentUser.email,
         timestamp: Date.now()
-      });
-      document.getElementById("inc-title").value="";
-      document.getElementById("inc-desc").value="";
-      fb.textContent="✓ Incident published."; fb.className="feedback success";
-      setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; renderIncidents(); },2000);
+      };
+
+      // Save to Firebase — appears on user dashboard + public status page
+      await push(ref(db,"announcements"), announcement);
+
+      // Also push as a report so community sees it
+      await push(ref(db,"officialUpdates"), announcement);
+
+      fb.textContent="✓ Published! Visible on status page and user dashboard."; fb.className="feedback success";
+      document.getElementById("ann-title").value="";
+      document.getElementById("ann-desc").value="";
+      document.getElementById("ann-eta").value="";
+      setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; renderAnnouncements(); },3000);
     };
 
-    // ── MAINTENANCE ──
-    function renderMaintenance() {
-      const list = document.getElementById("maintenance-list");
+    function renderAnnouncements() {
+      const list = document.getElementById("announcements-list");
+      const overviewEl = document.getElementById("overview-announcements");
       if (!list) return;
-      get(ref(db,"maintenanceWindows")).then(snap => {
+
+      get(ref(db,"announcements")).then(snap => {
         const data = snap.val();
-        if (!data) { list.innerHTML=`<div class="no-data">No maintenance scheduled.</div>`; return; }
-        const windows = Object.entries(data)
-          .map(([id,val])=>({id,...val}))
-          .filter(w=>w.company===companyData.company)
-          .sort((a,b)=>a.start-b.start);
-        if (!windows.length) { list.innerHTML=`<div class="no-data">No maintenance scheduled.</div>`; return; }
-        list.innerHTML = windows.map(w=>`
-          <div class="maintenance-card">
-            <p class="maintenance-title">${w.title}</p>
-            <p class="maintenance-meta">
-              ${new Date(w.start).toLocaleString("en-GB")} →
-              ${new Date(w.end).toLocaleString("en-GB")}
-            </p>
-            <p style="font-size:13px;color:var(--text2);margin-top:6px;">${w.desc}</p>
+        if (!data) {
+          list.innerHTML=`<div class="no-data">No announcements published yet.</div>`;
+          if (overviewEl) overviewEl.innerHTML=`<div class="no-data">No announcements yet.</div>`;
+          return;
+        }
+        const items = Object.entries(data)
+          .map(([id,v])=>({id,...v}))
+          .filter(a=>a.service===companyData.service)
+          .sort((a,b)=>b.timestamp-a.timestamp);
+
+        const html = items.map(a=>`
+          <div class="announcement-card ${a.type}">
+            <div class="ann-header">
+              <p class="ann-title">${a.title}</p>
+              <span class="ann-meta">${timeAgo(a.timestamp)}</span>
+            </div>
+            <p class="ann-desc">${a.desc}</p>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span class="ann-badge ${a.type}">${a.type.charAt(0).toUpperCase()+a.type.slice(1)}</span>
+              <span style="font-size:12px;color:var(--text3)">By ${a.publishedBy}</span>
+              ${a.eta?`<span style="font-size:12px;color:var(--text3)">ETA: ${new Date(a.eta).toLocaleString("en-GB")}</span>`:""}
+            </div>
           </div>`).join("");
+
+        list.innerHTML = html || `<div class="no-data">No announcements yet.</div>`;
+        if (overviewEl) overviewEl.innerHTML = items.slice(0,2).map(a=>`
+          <div class="announcement-card ${a.type}" style="margin-bottom:8px;">
+            <p style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px;">${a.title}</p>
+            <p style="font-size:12px;color:var(--text3);">${timeAgo(a.timestamp)}</p>
+          </div>`).join("") || `<div class="no-data">No announcements yet.</div>`;
       });
     }
 
+    // ── MAINTENANCE ───────────────────────────────────
     window.scheduleMaintenance = async function() {
+      if (!canRespond()) return;
       const title = document.getElementById("maint-title").value.trim();
       const start = new Date(document.getElementById("maint-start").value).getTime();
       const end   = new Date(document.getElementById("maint-end").value).getTime();
       const desc  = document.getElementById("maint-desc").value.trim();
       const fb    = document.getElementById("maint-feedback");
+
       if (!title||!start||!end||!desc) { fb.textContent="Please fill in all fields."; fb.className="feedback error"; return; }
-      if (end<=start) { fb.textContent="End time must be after start time."; fb.className="feedback error"; return; }
+      if (end<=start) { fb.textContent="End must be after start."; fb.className="feedback error"; return; }
+
       await push(ref(db,"maintenanceWindows"), {
         title, start, end, desc,
-        company:companyData.company, service:companyData.service,
-        createdAt:Date.now()
+        service:companyData.service, company:companyData.company, createdAt:Date.now()
       });
+
+      // Also publish as announcement
+      await push(ref(db,"announcements"), {
+        title:`Planned Maintenance: ${title}`, type:"maintenance",
+        desc:`Scheduled from ${new Date(start).toLocaleString("en-GB")} to ${new Date(end).toLocaleString("en-GB")}. ${desc}`,
+        service:companyData.service, company:companyData.company,
+        publishedBy:currentUser.displayName||currentUser.email, timestamp:Date.now()
+      });
+
       document.getElementById("maint-title").value="";
       document.getElementById("maint-start").value="";
       document.getElementById("maint-end").value="";
       document.getElementById("maint-desc").value="";
-      fb.textContent="✓ Maintenance scheduled."; fb.className="feedback success";
-      setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; renderMaintenance(); },2000);
+      fb.textContent="✓ Maintenance scheduled and users notified."; fb.className="feedback success";
+      setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; renderMaintenance(); },2500);
     };
 
-    // ── ANALYTICS ──
-    function renderAnalytics() {
-      if (!companyReports.length) {
-        document.getElementById("complaint-types-chart").innerHTML=`<div class="no-data">No data yet.</div>`;
-        document.getElementById("monthly-chart").innerHTML=`<div class="no-data">No data yet.</div>`;
-        document.getElementById("top-issues").innerHTML=`<div class="no-data">No data yet.</div>`;
-        document.getElementById("health-score-display").innerHTML=`<div class="no-data">No data yet.</div>`;
-        return;
-      }
-
-      // Complaint types
-      const typeCounts = {};
-      companyReports.forEach(r=>{ typeCounts[r.type]=(typeCounts[r.type]||0)+1; });
-      const maxType = Math.max(...Object.values(typeCounts));
-      document.getElementById("complaint-types-chart").innerHTML = Object.entries(typeCounts)
-        .sort((a,b)=>b[1]-a[1])
-        .map(([type,count])=>`
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <div style="font-size:12px;color:var(--text2);width:160px;flex-shrink:0;">${type}</div>
-            <div style="flex:1;background:var(--bg2);border-radius:99px;height:8px;overflow:hidden;">
-              <div style="width:${(count/maxType)*100}%;height:100%;border-radius:99px;background:#e74c3c;"></div>
-            </div>
-            <div style="font-size:12px;color:var(--text3);width:24px;text-align:right;">${count}</div>
+    function renderMaintenance() {
+      const list = document.getElementById("maintenance-list");
+      if (!list) return;
+      get(ref(db,"maintenanceWindows")).then(snap=>{
+        const data = snap.val();
+        if (!data) { list.innerHTML=`<div class="no-data">No maintenance scheduled.</div>`; return; }
+        const items = Object.entries(data)
+          .map(([id,v])=>({id,...v}))
+          .filter(w=>w.service===companyData.service)
+          .sort((a,b)=>a.start-b.start);
+        if (!items.length) { list.innerHTML=`<div class="no-data">No maintenance scheduled.</div>`; return; }
+        list.innerHTML = items.map(w=>`
+          <div class="maint-card">
+            <p class="maint-title">${w.title}</p>
+            <p class="maint-meta">
+              ${new Date(w.start).toLocaleString("en-GB")} →
+              ${new Date(w.end).toLocaleString("en-GB")}
+            </p>
+            <p style="font-size:13px;color:var(--text2);margin-top:4px;">${w.desc}</p>
           </div>`).join("");
+      });
+    }
 
-      // Monthly chart (last 6 months simulated)
+    // ── ANALYTICS ─────────────────────────────────────
+    function renderAnalytics() {
+      const responded = allReports.filter(r=>r.response).length;
+      const respRate  = allReports.length ? Math.round((responded/allReports.length)*100) : 0;
+      const score     = Math.max(0,100-allReports.length*5);
+      const scoreColor= score>=80?"#2ecc71":score>=60?"#f0a020":"#e74c3c";
+
+      document.getElementById("analytics-summary").innerHTML = `
+        <div class="summary-card"><p class="s-label">Total complaints</p><p class="s-num bad">${allReports.length}</p></div>
+        <div class="summary-card"><p class="s-label">Responded</p><p class="s-num ok">${responded}</p></div>
+        <div class="summary-card"><p class="s-label">Response rate</p><p class="s-num ${respRate>=50?"ok":"warn"}">${respRate}%</p></div>
+        <div class="summary-card"><p class="s-label">Health score</p><p class="s-num ${score>=80?"ok":score>=60?"warn":"bad"}">${score}</p></div>`;
+
+      // Type chart
+      const types = {};
+      allReports.forEach(r=>{ types[r.type]=(types[r.type]||0)+1; });
+      const maxT = Math.max(...Object.values(types),1);
+      document.getElementById("type-chart").innerHTML = Object.entries(types)
+        .sort((a,b)=>b[1]-a[1])
+        .map(([t,c])=>`
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div style="font-size:12px;color:var(--text2);width:150px;flex-shrink:0;
+              overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t}</div>
+            <div style="flex:1;background:var(--bg2);border-radius:99px;height:8px;overflow:hidden;">
+              <div style="width:${(c/maxT)*100}%;height:100%;border-radius:99px;background:#e74c3c;"></div>
+            </div>
+            <div style="font-size:12px;color:var(--text3);width:20px;text-align:right;">${c}</div>
+          </div>`).join("") || `<div class="no-data">No data yet.</div>`;
+
+      // Monthly
       const months = ["Nov","Dec","Jan","Feb","Mar","Apr"];
-      const vals   = [2,1,3,2,4,companyReports.length];
-      const maxVal = Math.max(...vals);
+      const vals   = [2,1,3,2,4,allReports.length];
+      const maxV   = Math.max(...vals,1);
       document.getElementById("monthly-chart").innerHTML = months.map((m,i)=>`
         <div class="bar-col">
           <div class="bar-val">${vals[i]}</div>
-          <div class="bar-fill" style="height:${(vals[i]/maxVal)*80}px"></div>
+          <div class="bar-fill" style="height:${(vals[i]/maxV)*80}px"></div>
           <div class="bar-label">${m}</div>
         </div>`).join("");
 
-      // Top issues
-      const sorted = Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
-      document.getElementById("top-issues").innerHTML = sorted.map(([type,count],i)=>`
-        <div style="display:flex;justify-content:space-between;padding:8px 0;
-          border-bottom:1px solid var(--border);">
-          <span style="font-size:13px;color:var(--text2);">${i+1}. ${type}</span>
-          <span style="font-size:13px;font-weight:500;color:var(--text);">${count} report${count!==1?"s":""}</span>
-        </div>`).join("");
+      // Response rate gauge
+      document.getElementById("response-rate").innerHTML = `
+        <div style="text-align:center;padding:1rem;">
+          <div style="font-size:48px;font-weight:500;color:${respRate>=50?"#2ecc71":"#f0a020"};">${respRate}%</div>
+          <div style="font-size:13px;color:var(--text2);margin:6px 0 12px;">
+            ${responded} of ${allReports.length} complaints responded to
+          </div>
+          <div style="background:var(--bg2);border-radius:99px;height:10px;overflow:hidden;">
+            <div style="width:${respRate}%;height:100%;border-radius:99px;
+              background:${respRate>=50?"#2ecc71":"#f0a020"};transition:width 1s;"></div>
+          </div>
+        </div>`;
 
       // Health score
-      const total     = companyReports.length;
-      const score     = Math.max(0, 100 - total*5);
-      const scoreColor= score>=80?"#2ecc71":score>=60?"#f0a020":"#e74c3c";
-      const scoreLabel= score>=80?"Good":"Fair";
-      document.getElementById("health-score-display").innerHTML = `
+      document.getElementById("health-score").innerHTML = `
         <div style="text-align:center;padding:1rem;">
           <div style="font-size:48px;font-weight:500;color:${scoreColor};">${score}</div>
-          <div style="font-size:14px;color:var(--text2);margin:4px 0 12px;">${scoreLabel} — based on ${total} community report${total!==1?"s":""}</div>
+          <div style="font-size:13px;color:var(--text2);margin:6px 0 12px;">
+            ${score>=80?"Good standing":score>=60?"Fair — monitor closely":"Needs immediate attention"}
+          </div>
           <div style="background:var(--bg2);border-radius:99px;height:10px;overflow:hidden;">
             <div style="width:${score}%;height:100%;border-radius:99px;background:${scoreColor};transition:width 1s;"></div>
           </div>
         </div>`;
     }
 
-    // ── SETTINGS ──
-    function renderSettings() {
-      const el = document.getElementById("profile-info");
-      if (!el) return;
-      el.innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:1rem;">
-          <div class="summary-card"><p class="s-label">Company</p><p style="font-size:15px;font-weight:500;color:var(--text);">${companyData.company}</p></div>
-          <div class="summary-card"><p class="s-label">Service</p><p style="font-size:15px;font-weight:500;color:var(--text);">${companyData.service}</p></div>
-          <div class="summary-card"><p class="s-label">Licence key</p><p style="font-size:13px;font-family:monospace;color:var(--text2);">${companyData.licenceKey}</p></div>
-          <div class="summary-card"><p class="s-label">Member since</p><p style="font-size:13px;color:var(--text2);">${new Date(companyData.registeredAt).toLocaleDateString("en-GB")}</p></div>
-        </div>`;
+    // ── TEAM ──────────────────────────────────────────
+    window.inviteMember = async function() {
+      if (!canEdit()) return;
+      const name  = document.getElementById("invite-name").value.trim();
+      const email = document.getElementById("invite-email").value.trim();
+      const role  = document.getElementById("invite-role").value;
+      const fb    = document.getElementById("invite-feedback");
+      if (!name||!email) { fb.textContent="Please enter name and email."; fb.className="feedback error"; return; }
 
-      const emailEl = document.getElementById("settings-email");
-      const phoneEl = document.getElementById("settings-phone");
-      if (emailEl && companyData.alertEmail) emailEl.value = companyData.alertEmail;
-      if (phoneEl && companyData.alertPhone) phoneEl.value = companyData.alertPhone;
+      const ownerId = companyData.ownerId || currentUser.uid;
+      await push(ref(db,"companyMembers"), {
+        name, email, role,
+        company:companyData.company,
+        service:companyData.service,
+        companyOwnerId: ownerId,
+        addedAt: Date.now()
+      });
+
+      document.getElementById("invite-name").value="";
+      document.getElementById("invite-email").value="";
+      fb.textContent=`✓ ${name} added as ${role}.`; fb.className="feedback success";
+      setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; renderTeam(); },2500);
+    };
+
+    function renderTeam() {
+      const list = document.getElementById("team-list");
+      if (!list) return;
+      get(ref(db,"companyMembers")).then(snap=>{
+        const data = snap.val();
+        if (!data) { list.innerHTML=`<div class="no-data">No team members yet. Invite your first member above.</div>`; return; }
+        const members = Object.entries(data)
+          .map(([id,v])=>({id,...v}))
+          .filter(m=>m.company===companyData.company);
+        if (!members.length) { list.innerHTML=`<div class="no-data">No team members yet.</div>`; return; }
+        list.innerHTML = members.map(m=>`
+          <div class="member-card">
+            <div class="member-info">
+              <h3>${m.name}</h3>
+              <p>${m.email} · Added ${new Date(m.addedAt).toLocaleDateString("en-GB")}</p>
+            </div>
+            <div class="member-actions">
+              <span class="role-tag ${m.role}">${m.role.toUpperCase()}</span>
+              ${canEdit()?`
+                <select onchange="updateRole('${m.id}',this.value)"
+                  style="padding:5px 10px;background:var(--select-bg);border:1px solid var(--border);
+                  border-radius:6px;color:var(--text);font-size:12px;outline:none;cursor:pointer;">
+                  <option value="viewer"     ${m.role==="viewer"?"selected":""}>Viewer</option>
+                  <option value="technician" ${m.role==="technician"?"selected":""}>Technician</option>
+                  <option value="admin"      ${m.role==="admin"?"selected":""}>Admin</option>
+                </select>
+                <button class="danger-btn" onclick="removeMember('${m.id}')">Remove</button>`:""}
+            </div>
+          </div>`).join("");
+      });
+    }
+
+    window.updateRole = async function(id, role) {
+      if (!canEdit()) return;
+      await set(ref(db,`companyMembers/${id}/role`), role);
+      renderTeam();
+    };
+
+    window.removeMember = async function(id) {
+      if (!canEdit()) return;
+      if (!confirm("Remove this team member?")) return;
+      await set(ref(db,`companyMembers/${id}`), null);
+      renderTeam();
+    };
+
+    // ── REPORTS (PDF) ─────────────────────────────────
+    function renderReportPreview() {
+      const uptime   = defaultUptime;
+      const upDays   = uptime.filter(d=>d==="up").length;
+      const partDays = uptime.filter(d=>d==="partial").length;
+      const downDays = uptime.filter(d=>d==="down").length;
+      const pct      = ((upDays+partDays*0.5)/uptime.length*100).toFixed(2);
+      const responded = allReports.filter(r=>r.response).length;
+      const respRate  = allReports.length?Math.round((responded/allReports.length)*100):0;
+
+      const preview = document.getElementById("report-preview-card");
+      const content = document.getElementById("report-preview-content");
+      preview.style.display = "block";
+
+      content.innerHTML = `
+        <div class="summary-grid" style="margin-bottom:1rem;">
+          <div class="summary-card"><p class="s-label">Uptime</p><p class="s-num ok">${pct}%</p></div>
+          <div class="summary-card"><p class="s-label">Complaints</p><p class="s-num bad">${allReports.length}</p></div>
+          <div class="summary-card"><p class="s-label">Response rate</p><p class="s-num ok">${respRate}%</p></div>
+          <div class="summary-card"><p class="s-label">Days down</p><p class="s-num bad">${downDays}</p></div>
+        </div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7;">
+          Report will include: uptime history, incident timeline, complaint breakdown by type,
+          response rate, team activity, and executive recommendations.
+        </p>`;
+    }
+
+    window.generateCompanyReport = async function() {
+      const period    = document.getElementById("report-period").value;
+      const recipient = document.getElementById("report-recipient").value.trim() || companyData.company;
+      const fb        = document.getElementById("report-feedback");
+      fb.textContent  = "Generating PDF..."; fb.className = "feedback";
+
+      try {
+        const script = document.createElement("script");
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+        document.head.appendChild(script);
+        await new Promise(r=>script.onload=r);
+
+        const { jsPDF } = window.jspdf;
+        const doc  = new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
+        const pageW = doc.internal.pageSize.getWidth();
+        const pageH = doc.internal.pageSize.getHeight();
+        let y = 0;
+
+        const uptime   = defaultUptime;
+        const upDays   = uptime.filter(d=>d==="up").length;
+        const partDays = uptime.filter(d=>d==="partial").length;
+        const downDays = uptime.filter(d=>d==="down").length;
+        const pct      = ((upDays+partDays*0.5)/uptime.length*100).toFixed(2);
+        const responded = allReports.filter(r=>r.response).length;
+        const respRate  = allReports.length?Math.round((responded/allReports.length)*100):0;
+        const score     = Math.max(0,100-allReports.length*5);
+        const pctNum    = parseFloat(pct);
+        const mainColor = pctNum>=99?[46,204,113]:pctNum>=95?[240,160,32]:[231,76,60];
+
+        function addPageHeader() {
+          doc.setFillColor(10,31,20);
+          doc.rect(0,0,pageW,14,"F");
+          doc.setTextColor(46,204,113); doc.setFontSize(8); doc.setFont("helvetica","bold");
+          doc.text("FINCHECK CAMEROON — B2B REPORT",15,9);
+          doc.setTextColor(150,200,150); doc.setFont("helvetica","normal");
+          doc.text(`${companyData.company} · ${companyData.service} · ${period}`,pageW/2,9,{align:"center"});
+          doc.text(`Generated ${new Date().toLocaleDateString("en-GB")}`,pageW-15,9,{align:"right"});
+        }
+
+        function addPageFooter() {
+          doc.setFillColor(10,31,20);
+          doc.rect(0,pageH-12,pageW,12,"F");
+          doc.setTextColor(100,180,130); doc.setFontSize(7); doc.setFont("helvetica","normal");
+          doc.text("FinCheck Cameroon B2B Portal · Confidential",15,pageH-4);
+          doc.text(`Page ${doc.internal.getCurrentPageInfo().pageNumber}`,pageW-15,pageH-4,{align:"right"});
+        }
+
+        // COVER
+        doc.setFillColor(10,31,20); doc.rect(0,0,pageW,pageH,"F");
+        doc.setFillColor(46,204,113); doc.rect(0,0,8,pageH,"F");
+        doc.setTextColor(46,204,113); doc.setFontSize(26); doc.setFont("helvetica","bold");
+        doc.text("FinCheck Cameroon",20,45);
+        doc.setTextColor(255,255,255); doc.setFontSize(18); doc.setFont("helvetica","normal");
+        doc.text("Company Performance Report",20,58);
+        doc.setDrawColor(46,204,113); doc.setLineWidth(0.5); doc.line(20,64,pageW-20,64);
+        doc.setTextColor(150,200,150); doc.setFontSize(11);
+        doc.text(`Company: ${companyData.company}`,20,75);
+        doc.text(`Service: ${companyData.service}`,20,84);
+        doc.text(`Period: ${period}`,20,93);
+        doc.text(`Prepared for: ${recipient}`,20,102);
+        doc.text(`Generated: ${new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}`,20,111);
+
+        // Summary box
+        doc.setFillColor(mainColor[0]*0.15,mainColor[1]*0.15,mainColor[2]*0.15);
+        doc.roundedRect(20,130,pageW-40,40,4,4,"F");
+        doc.setDrawColor(mainColor[0],mainColor[1],mainColor[2]);
+        doc.setLineWidth(0.5); doc.roundedRect(20,130,pageW-40,40,4,4,"S");
+        doc.setTextColor(mainColor[0],mainColor[1],mainColor[2]);
+        doc.setFontSize(10); doc.setFont("helvetica","bold");
+        doc.text("SERVICE UPTIME",30,143);
+        doc.setFontSize(24); doc.text(`${pct}%`,30,158);
+        doc.setTextColor(150,200,150); doc.setFontSize(10); doc.setFont("helvetica","normal");
+        doc.text(`${allReports.length} complaints · ${respRate}% response rate · Score: ${score}/100`,pageW-30,147,{align:"right"});
+
+        doc.setTextColor(60,100,80); doc.setFontSize(8);
+        doc.text("CONFIDENTIAL — For internal use only",pageW/2,pageH-20,{align:"center"});
+
+        // PAGE 2 — PERFORMANCE
+        doc.addPage(); addPageHeader(); y=28;
+
+        const sections = [
+          ["UPTIME SUMMARY",[
+            ["Service",companyData.service],["Period",period],
+            ["Overall uptime",`${pct}%`],["Days operational",`${upDays}/30`],
+            ["Partial outage days",`${partDays}`],["Full outage days",`${downDays}`],
+          ]],
+          ["COMPLAINT SUMMARY",[
+            ["Total complaints",`${allReports.length}`],
+            ["Responded to",`${responded}`],
+            ["Response rate",`${respRate}%`],
+            ["Most common issue", allReports.length?getMostCommon():"None"],
+          ]],
+          ["PERFORMANCE SCORE",[
+            ["Service health score",`${score}/100`],
+            ["Rating",score>=80?"Good":score>=60?"Fair":"Needs improvement"],
+            ["Uptime rating",pctNum>=99?"Excellent":pctNum>=95?"Good":"Below target"],
+          ]],
+        ];
+
+        sections.forEach(([title, rows]) => {
+          if (y>pageH-50) { addPageFooter(); doc.addPage(); addPageHeader(); y=28; }
+          doc.setFillColor(10,31,20); doc.rect(15,y-4,pageW-30,10,"F");
+          doc.setTextColor(46,204,113); doc.setFontSize(9); doc.setFont("helvetica","bold");
+          doc.text(title,20,y+2); y+=12;
+          rows.forEach(([label,val])=>{
+            if (y>pageH-20) { addPageFooter(); doc.addPage(); addPageHeader(); y=28; }
+            doc.setTextColor(80,110,90); doc.setFontSize(9); doc.setFont("helvetica","normal");
+            doc.text(label,22,y);
+            doc.setTextColor(20,60,30); doc.setFont("helvetica","bold");
+            doc.text(String(val),pageW-22,y,{align:"right"});
+            doc.setDrawColor(220,240,220); doc.line(22,y+2,pageW-22,y+2);
+            y+=8;
+          });
+          y+=6;
+        });
+
+        // PAGE 3 — COMPLAINT BREAKDOWN
+        if (allReports.length) {
+          addPageFooter(); doc.addPage(); addPageHeader(); y=28;
+          doc.setFillColor(10,31,20); doc.rect(15,y-4,pageW-30,10,"F");
+          doc.setTextColor(46,204,113); doc.setFontSize(9); doc.setFont("helvetica","bold");
+          doc.text("COMPLAINT BREAKDOWN",20,y+2); y+=14;
+
+          const types = {};
+          allReports.forEach(r=>{ types[r.type]=(types[r.type]||0)+1; });
+          const maxT = Math.max(...Object.values(types),1);
+          Object.entries(types).sort((a,b)=>b[1]-a[1]).forEach(([t,c])=>{
+            if (y>pageH-20) { addPageFooter(); doc.addPage(); addPageHeader(); y=28; }
+            doc.setTextColor(80,110,90); doc.setFontSize(9); doc.setFont("helvetica","normal");
+            doc.text(t,22,y);
+            doc.setTextColor(20,60,30); doc.setFont("helvetica","bold");
+            doc.text(`${c}`,pageW-22,y,{align:"right"});
+            doc.setFillColor(220,240,220); doc.roundedRect(22,y+2,pageW-44,4,1,1,"F");
+            doc.setFillColor(231,76,60);   doc.roundedRect(22,y+2,(pageW-44)*(c/maxT),4,1,1,"F");
+            y+=12;
+          });
+        }
+
+        addPageFooter();
+        doc.save(`FinCheck_B2B_${companyData.company.replace(/\s+/g,"_")}_${period.replace(/\s+/g,"_")}.pdf`);
+        fb.textContent="✓ PDF downloaded!"; fb.className="feedback success";
+        setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; },3000);
+      } catch(e) {
+        console.error(e);
+        fb.textContent="Failed to generate PDF."; fb.className="feedback error";
+      }
+    };
+
+    function getMostCommon() {
+      const types = {};
+      allReports.forEach(r=>{ types[r.type]=(types[r.type]||0)+1; });
+      return Object.entries(types).sort((a,b)=>b[1]-a[1])[0]?.[0] || "None";
+    }
+
+    // ── LOGO UPLOAD ───────────────────────────────────
+    window.uploadLogo = async function(input) {
+      if (!canEdit()) return;
+      const file = input.files[0];
+      if (!file) return;
+      const fb = document.getElementById("logo-feedback");
+      fb.textContent="Uploading..."; fb.className="feedback";
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", CLOUDINARY_PRESET);
+
+      try {
+        const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+          method:"POST", body:formData
+        });
+        const data = await res.json();
+        const url  = data.secure_url;
+
+        // Save to Firebase
+        const ownerId = companyData.ownerId || currentUser.uid;
+        await set(ref(db,`companies/${ownerId}/logoUrl`), url);
+        companyData.logoUrl = url;
+
+        // Show preview
+        const preview = document.getElementById("logo-preview");
+        preview.src = url; preview.classList.add("visible");
+        const navLogo = document.getElementById("nav-logo");
+        navLogo.src = url; navLogo.classList.add("visible");
+        document.getElementById("logo-upload-area").style.display="none";
+
+        fb.textContent="✓ Logo uploaded successfully!"; fb.className="feedback success";
+        setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; },3000);
+      } catch(e) {
+        fb.textContent="Upload failed. Please try again."; fb.className="feedback error";
+      }
+    };
+
+    // ── SETTINGS ──────────────────────────────────────
+    function loadSettings() {
+      const fields = {
+        "settings-company": companyData.company||"",
+        "settings-email":   companyData.alertEmail||"",
+        "settings-phone":   companyData.alertPhone||"",
+        "settings-website": companyData.website||"",
+        "settings-desc":    companyData.description||"",
+      };
+      Object.entries(fields).forEach(([id,val])=>{
+        const el = document.getElementById(id); if(el) el.value = val;
+      });
+      const svcEl = document.getElementById("settings-service");
+      if (svcEl) svcEl.value = companyData.service||"";
+
+      if (companyData.logoUrl) {
+        const preview = document.getElementById("logo-preview");
+        preview.src = companyData.logoUrl; preview.classList.add("visible");
+        document.getElementById("logo-upload-area").style.display="none";
+      }
+
+      document.getElementById("account-info").innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
+          <div class="summary-card"><p class="s-label">Company</p><p style="font-size:14px;font-weight:500;color:var(--text);">${companyData.company}</p></div>
+          <div class="summary-card"><p class="s-label">Service</p><p style="font-size:14px;font-weight:500;color:var(--text);">${companyData.service}</p></div>
+          <div class="summary-card"><p class="s-label">Your role</p><p style="font-size:14px;font-weight:500;color:var(--text);">${userRole.charAt(0).toUpperCase()+userRole.slice(1)}</p></div>
+          <div class="summary-card"><p class="s-label">Licence key</p><p style="font-size:12px;font-family:monospace;color:var(--text2);">${companyData.licenceKey||"—"}</p></div>
+        </div>`;
     }
 
     window.saveSettings = async function() {
-      const email = document.getElementById("settings-email").value.trim();
-      const phone = document.getElementById("settings-phone").value.trim();
-      const fb    = document.getElementById("settings-feedback");
-      await set(ref(db,`companies/${currentUser.uid}/alertEmail`), email);
-      await set(ref(db,`companies/${currentUser.uid}/alertPhone`), phone);
-      fb.textContent="✓ Settings saved."; fb.className="feedback success";
-      setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; },3000);
+      if (!canEdit()) return;
+      const ownerId = companyData.ownerId || currentUser.uid;
+      const updates = {
+        company:     document.getElementById("settings-company").value.trim(),
+        service:     document.getElementById("settings-service").value,
+        alertEmail:  document.getElementById("settings-email").value.trim(),
+        alertPhone:  document.getElementById("settings-phone").value.trim(),
+        website:     document.getElementById("settings-website").value.trim(),
+        description: document.getElementById("settings-desc").value.trim(),
+      };
+      const fb = document.getElementById("settings-feedback");
+      try {
+        await set(ref(db,`companies/${ownerId}`), {...companyData,...updates});
+        companyData = {...companyData,...updates};
+        document.getElementById("nav-company-name").textContent = updates.company;
+        document.getElementById("overview-title").textContent   = updates.service;
+        fb.textContent="✓ Settings saved."; fb.className="feedback success";
+        setTimeout(()=>{ fb.textContent=""; fb.className="feedback"; },3000);
+      } catch(e) {
+        fb.textContent="Failed to save."; fb.className="feedback error";
+      }
     };
 
-    // ── HELPERS ──
+    // ── HELPERS ───────────────────────────────────────
     function timeAgo(ts) {
       const d = Math.floor((Date.now()-ts)/1000);
       if (d<60)   return `${d}s ago`;
       if (d<3600) return `${Math.floor(d/60)}m ago`;
-      return `${Math.floor(d/3600)}h ago`;
+      if (d<86400) return `${Math.floor(d/3600)}h ago`;
+      return `${Math.floor(d/86400)}d ago`;
     }
   </script>
 </body>
