@@ -1459,7 +1459,6 @@ window.downloadPDF = async function() {
   }
 };
 
-// NOTIFICATIONS PAGE 
   <div id="page-notifications" class="page">
     <div class="container">
       <div class="hero">
