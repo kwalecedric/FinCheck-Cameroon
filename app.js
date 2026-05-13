@@ -445,13 +445,13 @@ window.signOut = async function() {
 // ── PAGES ─────────────────────────────────────────────
 window.showPage = function(name, link) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active"));
+  document.querySelectorAll(".nav-link, .nav-dropdown-item").forEach(l => l.classList.remove("active"));
   document.getElementById("page-" + name).classList.add("active");
   if (link) link.classList.add("active");
-  if (name === "logs")    startLiveLogs();
-  if (name === "services") renderManageServices();
-  if (name === "alerts")  renderAlertToggles();
-  if (name === "reports") renderReportServiceChecks();
+  if (name === "logs")          startLiveLogs();
+  if (name === "services")      renderManageServices();
+  if (name === "alerts")        { renderAlertToggles(); loadAlertPrefsIntoForm(); }
+  if (name === "reports")       renderReportServiceChecks();
   if (name === "notifications") startNotifications();
 };
 
@@ -1508,3 +1508,19 @@ function timeAgo(ts) {
   if (d<3600) return currentLang==="fr"?`${Math.floor(d/60)}min`:`${Math.floor(d/60)}m ago`;
   return currentLang==="fr"?`${Math.floor(d/3600)}h`:`${Math.floor(d/3600)}h ago`;
 }
+
+// ── DROPDOWN NAV ──────────────────────────────────────
+window.toggleDropdown = function(id) {
+  const menu = document.getElementById(id);
+  const isOpen = menu.classList.contains("open");
+  closeDropdowns();
+  if (!isOpen) menu.classList.add("open");
+};
+
+window.closeDropdowns = function() {
+  document.querySelectorAll(".nav-dropdown-menu").forEach(m=>m.classList.remove("open"));
+};
+
+document.addEventListener("click", e => {
+  if (!e.target.closest(".nav-dropdown")) closeDropdowns();
+});

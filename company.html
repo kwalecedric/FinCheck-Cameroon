@@ -354,16 +354,42 @@
         <span class="b2b-tag">PORTAL</span>
         <span class="role-tag" id="nav-role-tag"></span>
       </div>
-      <div class="nav-links">
-        <button class="nav-link active" onclick="showPage('overview',this)">Overview</button>
-        <button class="nav-link" onclick="showPage('complaints',this)">Complaints</button>
-        <button class="nav-link" onclick="showPage('announcements',this)">Announcements</button>
-        <button class="nav-link" onclick="showPage('maintenance',this)">Maintenance</button>
-        <button class="nav-link" onclick="showPage('analytics',this)">Analytics</button>
-        <button class="nav-link" onclick="showPage('team',this)">Team</button>
-        <button class="nav-link" onclick="showPage('reports',this)">Reports</button>
-        <button class="nav-link" onclick="showPage('settings',this)">Settings</button>
-      </div>
+      <div class="nav-links" id="nav-links">
+  <!-- STATUS dropdown -->
+  <div class="nav-dropdown">
+    <button class="nav-link nav-dropdown-trigger" onclick="toggleDropdown('dd-status')">
+      Status ▾
+    </button>
+    <div class="nav-dropdown-menu" id="dd-status">
+      <button class="nav-dropdown-item active" onclick="showPage('overview',this);closeDropdowns()">Overview</button>
+      <button class="nav-dropdown-item" onclick="showPage('monitoring',this);closeDropdowns()">Monitoring</button>
+      <button class="nav-dropdown-item" onclick="showPage('logs',this);closeDropdowns()">Live Logs</button>
+      <button class="nav-dropdown-item" onclick="showPage('notifications',this);closeDropdowns()">Notifications</button>
+    </div>
+  </div>
+
+  <!-- FINANCE dropdown -->
+  <div class="nav-dropdown">
+    <button class="nav-link nav-dropdown-trigger" onclick="toggleDropdown('dd-finance')">
+      Finance ▾
+    </button>
+    <div class="nav-dropdown-menu" id="dd-finance">
+      <button class="nav-dropdown-item" onclick="showPage('tracker',this);closeDropdowns()">Tracker</button>
+      <button class="nav-dropdown-item" onclick="showPage('reports',this);closeDropdowns()">Reports</button>
+    </div>
+  </div>
+
+  <!-- ACCOUNT dropdown -->
+  <div class="nav-dropdown">
+    <button class="nav-link nav-dropdown-trigger" onclick="toggleDropdown('dd-account')">
+      Account ▾
+    </button>
+    <div class="nav-dropdown-menu" id="dd-account">
+      <button class="nav-dropdown-item" onclick="showPage('services',this);closeDropdowns()">My Services</button>
+      <button class="nav-dropdown-item" onclick="showPage('alerts',this);closeDropdowns()">Alerts</button>
+    </div>
+  </div>
+</div>
       <div class="nav-right">
         <div class="theme-toggle">
           <button class="theme-btn active" onclick="setTheme('dark')">🌙</button>
@@ -1545,6 +1571,22 @@
       if (d<86400) return `${Math.floor(d/3600)}h ago`;
       return `${Math.floor(d/86400)}d ago`;
     }
+    // ── DROPDOWN NAVIGATION ───────────────────────────────
+window.toggleDropdown = function(id) {
+  const menu = document.getElementById(id);
+  const isOpen = menu.classList.contains("open");
+  closeDropdowns();
+  if (!isOpen) menu.classList.add("open");
+};
+
+window.closeDropdowns = function() {
+  document.querySelectorAll(".nav-dropdown-menu").forEach(m => m.classList.remove("open"));
+};
+
+// Close dropdowns when clicking outside
+document.addEventListener("click", e => {
+  if (!e.target.closest(".nav-dropdown")) closeDropdowns();
+});
   </script>
 </body>
 </html>
