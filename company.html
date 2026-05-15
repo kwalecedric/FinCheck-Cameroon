@@ -826,19 +826,23 @@
     };
 
     // ── PAGES ─────────────────────────────────────────
-    window.showPage = function(name, btn) {
-      document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-      document.querySelectorAll(".nav-link").forEach(l=>l.classList.remove("active"));
-      document.getElementById("page-"+name).classList.add("active");
-      if (btn) btn.classList.add("active");
-      if (name==="complaints")   renderComplaints();
-      if (name==="announcements"){ renderAnnouncements(); checkAnnouncePermission(); }
-      if (name==="maintenance")  renderMaintenance();
-      if (name==="analytics")    renderAnalytics();
-      if (name==="team")         { renderTeam(); checkTeamPermission(); }
-      if (name==="reports")      renderReportPreview();
-      if (name==="settings")     { loadSettings(); checkSettingsPermission(); }
-    };
+   window.showPage = function(name, btn) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-link, .nav-dropdown-item").forEach(l => {
+    if (l) l.classList.remove("active");
+  });
+  const page = document.getElementById("page-" + name);
+  if (page) page.classList.add("active");
+  if (btn) btn.classList.add("active");
+  closeDropdowns();
+  if (name==="complaints")    renderComplaints();
+  if (name==="announcements") { renderAnnouncements(); checkAnnouncePermission(); }
+  if (name==="maintenance")   renderMaintenance();
+  if (name==="analytics")     renderAnalytics();
+  if (name==="team")          { renderTeam(); checkTeamPermission(); }
+  if (name==="reports")       renderReportPreview();
+  if (name==="settings")      { loadSettings(); checkSettingsPermission(); }
+};
 
     // ── INIT ──────────────────────────────────────────
     function initPortal() {

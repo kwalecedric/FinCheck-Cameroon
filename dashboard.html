@@ -15,16 +15,42 @@
         <span class="brand-dot"></span>
         <span data-i18n="brand">FinCheck Cameroon</span>
       </div>
-      <div class="nav-links" id="nav-links">
-        <a href="#" class="nav-link active" onclick="showPage('overview',this)" data-i18n="nav_overview">Overview</a>
-        <a href="#" class="nav-link" onclick="showPage('monitoring',this)" data-i18n="nav_monitoring">Monitoring</a>
-        <a href="#" class="nav-link" onclick="showPage('tracker',this)" data-i18n="nav_tracker">Tracker</a>
-        <a href="#" class="nav-link" onclick="showPage('services',this)" data-i18n="nav_services">My Services</a>
-        <a href="#" class="nav-link" onclick="showPage('logs',this)" data-i18n="nav_logs">Live Logs</a>
-        <a href="#" class="nav-link" onclick="showPage('alerts',this)" data-i18n="nav_alerts">Alerts</a>
-        <a href="#" class="nav-link" onclick="showPage('reports',this)" data-i18n="nav_reports">Reports</a>
-        <a href="#" class="nav-link" onclick="showPage('notifications',this)">Notifications</a>
-      </div>
+     <div class="nav-links" id="nav-links">
+  <!-- STATUS dropdown -->
+  <div class="nav-dropdown">
+    <button class="nav-link nav-dropdown-trigger" onclick="toggleDropdown('dd-status')">
+      Status ▾
+    </button>
+    <div class="nav-dropdown-menu" id="dd-status">
+      <button class="nav-dropdown-item active" onclick="showPage('overview',this);closeDropdowns()">Overview</button>
+      <button class="nav-dropdown-item" onclick="showPage('monitoring',this);closeDropdowns()">Monitoring</button>
+      <button class="nav-dropdown-item" onclick="showPage('logs',this);closeDropdowns()">Live Logs</button>
+      <button class="nav-dropdown-item" onclick="showPage('notifications',this);closeDropdowns()">Notifications</button>
+    </div>
+  </div>
+
+  <!-- FINANCE dropdown -->
+  <div class="nav-dropdown">
+    <button class="nav-link nav-dropdown-trigger" onclick="toggleDropdown('dd-finance')">
+      Finance ▾
+    </button>
+    <div class="nav-dropdown-menu" id="dd-finance">
+      <button class="nav-dropdown-item" onclick="showPage('tracker',this);closeDropdowns()">Tracker</button>
+      <button class="nav-dropdown-item" onclick="showPage('reports',this);closeDropdowns()">Reports</button>
+    </div>
+  </div>
+
+  <!-- ACCOUNT dropdown -->
+  <div class="nav-dropdown">
+    <button class="nav-link nav-dropdown-trigger" onclick="toggleDropdown('dd-account')">
+      Account ▾
+    </button>
+    <div class="nav-dropdown-menu" id="dd-account">
+      <button class="nav-dropdown-item" onclick="showPage('services',this);closeDropdowns()">My Services</button>
+      <button class="nav-dropdown-item" onclick="showPage('alerts',this);closeDropdowns()">Alerts</button>
+    </div>
+  </div>
+</div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="lang-toggle">
           <button class="lang-btn active" onclick="setLang('en')">EN</button>
